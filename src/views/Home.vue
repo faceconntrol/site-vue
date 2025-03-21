@@ -10,7 +10,7 @@
         <v-container class="hero-content d-flex align-center" style="height: 100%">
           <v-row>
             <v-col cols="12" md="8" lg="6">
-              <h1 class="text-h2 font-weight-bold text-white mb-6">
+              <h1 class="text-h2 font-weight-bold text-white mb-6 hero-title">
                 Системы видеонаблюдения в Ленинградской области
               </h1>
               <p class="text-h5 text-white mb-8">
@@ -152,8 +152,8 @@
     <!-- Секция "Какие задачи решает" -->
     <section class="tasks-section py-16">
       <v-container>
-        <h2 class="text-h3 text-center font-weight-bold mb-12 section-title tasks-title">
-          Какие задачи решает видеонаблюдение
+        <h2 class="text-h3 text-center font-weight-bold mb-12 section-title">
+          <span class="d-block">Какие задачи решает видеонаблюдение</span>
           <div class="title-underline"></div>
         </h2>
         <v-row>
@@ -417,14 +417,14 @@ onMounted(() => {
   // Добавляем обработчики для эффекта свечения
   const cards = document.querySelectorAll('.feature-card')
   cards.forEach(card => {
-    card.addEventListener('mousemove', (e) => handleMouseMove(e, card as HTMLElement))
+    card.addEventListener('mousemove', (e) => handleMouseMove(e as MouseEvent, card as HTMLElement))
   })
 
   // Очистка при размонтировании
   onUnmounted(() => {
     window.removeEventListener('scroll', scrollHandler)
     cards.forEach(card => {
-      card.removeEventListener('mousemove', (e) => handleMouseMove(e, card as HTMLElement))
+      card.removeEventListener('mousemove', (e) => handleMouseMove(e as MouseEvent, card as HTMLElement))
     })
   })
 })
@@ -833,6 +833,9 @@ section:nth-of-type(5) {
   opacity: 0;
   transform: translateX(-50px);
   transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center !important;
+  width: 100% !important;
+  display: block !important;
 }
 
 .section-title.visible {
@@ -1138,29 +1141,89 @@ section:nth-of-type(5) {
   elevation: 0;
 }
 
-/* Адаптивность для заголовка "Какие задачи решает видеонаблюдение" */
+/* Адаптивность для всех заголовков секций */
 @media (max-width: 768px) {
-  .tasks-title {
+  .section-title, .section-title span {
+    font-size: 2.5rem !important;
+    line-height: 1.2 !important;
+    text-align: center !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .section-title, .section-title span {
+    font-size: 2rem !important;
+    line-height: 1.2 !important;
+    padding: 0 16px;
+    text-align: center !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title, .section-title span {
+    font-size: 1.75rem !important;
+    line-height: 1.3 !important;
+    padding: 0 16px;
+    word-break: keep-all;
+    hyphens: auto;
+    text-align: center !important;
+  }
+}
+
+/* Адаптация основного заголовка на hero секции */
+.hero-title {
+  /* Базовый стиль */
+  line-height: 1.2;
+}
+
+@media (max-width: 768px) {
+  .hero-title {
     font-size: 2.5rem !important;
     line-height: 1.2 !important;
   }
 }
 
 @media (max-width: 600px) {
-  .tasks-title {
+  .hero-title {
     font-size: 2rem !important;
     line-height: 1.2 !important;
-    padding: 0 16px;
+    word-break: normal;
+    hyphens: none;
   }
 }
 
 @media (max-width: 480px) {
-  .tasks-title {
-    font-size: 1.75rem !important;
+  .hero-title {
+    font-size: 1.5rem !important;
     line-height: 1.3 !important;
-    padding: 0 16px;
-    word-break: keep-all;
-    hyphens: auto;
+    word-break: normal;
+    hyphens: none;
+  }
+  
+  /* Уменьшаем размер подзаголовка также */
+  .hero-content .text-h5 {
+    font-size: 0.875rem !important;
+    line-height: 1.5 !important;
+  }
+  
+  /* Уменьшаем отступы */
+  .hero-content .mb-6 {
+    margin-bottom: 12px !important;
+  }
+  
+  .hero-content .mb-8 {
+    margin-bottom: 16px !important;
+  }
+}
+
+/* Добавляем стили для самых маленьких экранов */
+@media (max-width: 375px) {
+  .hero-title {
+    font-size: 1.35rem !important;
+  }
+  
+  .hero-content .text-h5 {
+    font-size: 0.8rem !important;
   }
 }
 </style> 
