@@ -152,7 +152,7 @@
     <!-- Секция "Какие задачи решает" -->
     <section class="tasks-section py-16">
       <v-container>
-        <h2 class="text-h3 text-center font-weight-bold mb-12 section-title">
+        <h2 class="text-h3 text-center font-weight-bold mb-12 section-title tasks-title">
           Какие задачи решает видеонаблюдение
           <div class="title-underline"></div>
         </h2>
@@ -1136,5 +1136,31 @@ section:nth-of-type(5) {
 /* Убираем elevation по умолчанию */
 :deep(.v-card) {
   elevation: 0;
+}
+
+/* Адаптивность для заголовка "Какие задачи решает видеонаблюдение" */
+@media (max-width: 768px) {
+  .tasks-title {
+    font-size: 2.5rem !important;
+    line-height: 1.2 !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .tasks-title {
+    font-size: 2rem !important;
+    line-height: 1.2 !important;
+    padding: 0 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tasks-title {
+    font-size: 1.75rem !important;
+    line-height: 1.3 !important;
+    padding: 0 16px;
+    word-break: keep-all;
+    hyphens: auto;
+  }
 }
 </style> 
