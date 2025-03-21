@@ -1,0 +1,82 @@
+{
+  "hash": "ad33989c",
+  "configHash": "aa677302",
+  "lockfileHash": "25609d78",
+  "browserHash": "f00313a5",
+  "optimized": {
+    "@vue/runtime-dom": {
+      "src": "../../node_modules/@vue/runtime-dom/dist/runtime-dom.esm-bundler.js",
+      "file": "@vue_runtime-dom.js",
+      "fileHash": "819d7e55",
+      "needsInterop": false
+    },
+    "@vueuse/head": {
+      "src": "../../node_modules/@vueuse/head/dist/index.mjs",
+      "file": "@vueuse_head.js",
+      "fileHash": "9726bd74",
+      "needsInterop": false
+    },
+    "pinia": {
+      "src": "../../node_modules/pinia/dist/pinia.mjs",
+      "file": "pinia.js",
+      "fileHash": "148c3589",
+      "needsInterop": false
+    },
+    "vue-router": {
+      "src": "../../node_modules/vue-router/dist/vue-router.mjs",
+      "file": "vue-router.js",
+      "fileHash": "76525732",
+      "needsInterop": false
+    },
+    "vuetify": {
+      "src": "../../node_modules/vuetify/lib/framework.mjs",
+      "file": "vuetify.js",
+      "fileHash": "12b7493e",
+      "needsInterop": false
+    },
+    "vuetify/components": {
+      "src": "../../node_modules/vuetify/lib/components/index.mjs",
+      "file": "vuetify_components.js",
+      "fileHash": "f21150bd",
+      "needsInterop": false
+    },
+    "vuetify/directives": {
+      "src": "../../node_modules/vuetify/lib/directives/index.mjs",
+      "file": "vuetify_directives.js",
+      "fileHash": "ea2b4466",
+      "needsInterop": false
+    },
+    "vuetify/iconsets/mdi": {
+      "src": "../../node_modules/vuetify/lib/iconsets/mdi.mjs",
+      "file": "vuetify_iconsets_mdi.js",
+      "fileHash": "296b3991",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-AYVSL3LM": {
+      "file": "chunk-AYVSL3LM.js"
+    },
+    "chunk-USYZWKRQ": {
+      "file": "chunk-USYZWKRQ.js"
+    },
+    "chunk-CYK23HGZ": {
+      "file": "chunk-CYK23HGZ.js"
+    },
+    "chunk-YKXZJUAH": {
+      "file": "chunk-YKXZJUAH.js"
+    },
+    "chunk-OVUEXSDW": {
+      "file": "chunk-OVUEXSDW.js"
+    },
+    "chunk-XHIPANIA": {
+      "file": "chunk-XHIPANIA.js"
+    },
+    "chunk-HXOQOQ5S": {
+      "file": "chunk-HXOQOQ5S.js"
+    },
+    "chunk-IWBZB26D": {
+      "file": "chunk-IWBZB26D.js"
+    }
+  }
+}

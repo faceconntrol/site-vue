@@ -1,0 +1,45 @@
+@use "sass:color";
+
+// Colors
+$primary-color: #1976D2;
+$secondary-color: #424242;
+$accent-color: #82B1FF;
+$bg-color: #FFFFFF;
+$text-color: #1A1A1A;
+
+// Spacing
+$spacing-unit: 8px;
+$spacing-1: $spacing-unit;
+$spacing-2: $spacing-unit * 2;
+$spacing-3: $spacing-unit * 3;
+$spacing-4: $spacing-unit * 4;
+$spacing-5: $spacing-unit * 5;
+$spacing-6: $spacing-unit * 6;
+
+// Typography
+$font-family: "Inter", sans-serif;
+$font-size-base: 16px;
+$line-height-base: 1.5;
+
+// Breakpoints
+$breakpoint-sm: 600px;
+$breakpoint-md: 960px;
+$breakpoint-lg: 1264px;
+$breakpoint-xl: 1904px;
+
+// Other
+$container-width: 1200px;
+$transition-fast: 0.2s ease;
+$transition-normal: 0.3s ease;
+$border-radius-sm: 4px;
+
+// ... остальные переменные ... 
+
+:root {
+  // Улучшенные цвета с большим контрастом
+  --primary-color: #0056b3; // Более темный синий для лучшего контраста
+  --secondary-color: #005000; // Более темный зеленый
+  --warning-color: #d06000; // Более темный оранжевый
+  --light-text: #f8f8f8; // Более светлый для текста на темном фоне
+  --dark-text: #181818; // Более темный для текста на светлом фоне
+} 

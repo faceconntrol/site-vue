@@ -1,0 +1,62 @@
+@use 'sass:color';
+
+// Основные цвета
+$primary-color: #1976D2;
+$secondary-color: #424242;
+$accent-color: #82B1FF;
+
+// Создаем палитру с использованием color.adjust() и color.scale()
+$primary-light: color.adjust($primary-color, $lightness: 15%);
+$primary-dark: color.adjust($primary-color, $lightness: -15%);
+
+$secondary-light: color.adjust($secondary-color, $lightness: 15%);
+$secondary-dark: color.adjust($secondary-color, $lightness: -15%);
+
+$accent-intense: color.scale($accent-color, $saturation: 30%);
+$accent-muted: color.scale($accent-color, $saturation: -30%);
+
+// Базовые цвета
+$bg-color: #FFFFFF;
+$text-color: #1A1A1A;
+
+// Тени с использованием color.adjust() для прозрачности
+$shadow-1: 0 2px 4px color.adjust($secondary-color, $alpha: -0.9);
+$shadow-2: 0 4px 8px color.adjust($secondary-color, $alpha: -0.85);
+$shadow-3: 0 8px 16px color.adjust($secondary-color, $alpha: -0.8);
+$shadow-4: 0 16px 24px color.adjust($secondary-color, $alpha: -0.75);
+
+// Остальные переменные без изменений
+$container-width: 1200px;
+$header-height: 80px;
+$section-padding: 80px 0;
+
+$breakpoint-sm: 600px;
+$breakpoint-md: 960px;
+$breakpoint-lg: 1264px;
+$breakpoint-xl: 1904px;
+
+$transition-fast: 0.2s ease;
+$transition-normal: 0.3s ease;
+$transition-slow: 0.4s ease;
+
+$z-index-header: 1000;
+$z-index-modal: 2000;
+$z-index-dropdown: 1500;
+
+$font-family: 'Inter', sans-serif;
+$font-size-base: 16px;
+$line-height-base: 1.5;
+
+$spacing-unit: 8px;
+$spacing-1: $spacing-unit;
+$spacing-2: $spacing-unit * 2;
+$spacing-3: $spacing-unit * 3;
+$spacing-4: $spacing-unit * 4;
+$spacing-5: $spacing-unit * 5;
+$spacing-6: $spacing-unit * 6;
+
+$border-radius-sm: 4px;
+$border-radius-md: 8px;
+$border-radius-lg: 16px;
+$border-width: 1px;
+$border-color: color.adjust($secondary-color, $alpha: -0.88); 

@@ -1,0 +1,75 @@
+@use "sass:color";
+@use "@styles/_variables" as *;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: $font-size-base;
+  line-height: $line-height-base;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: color.adjust($primary-color, $alpha: 0);
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: $font-family;
+  font-size: $font-size-base;
+  line-height: $line-height-base;
+  color: var(--v-text-base);
+  background-color: var(--v-background-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  margin-bottom: $spacing-3;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: $spacing-3;
+}
+
+a {
+  color: $primary-color;
+  text-decoration: none;
+  transition: color $transition-fast;
+
+  &:hover {
+    color: color.adjust($primary-color, $lightness: 20%);
+  }
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: color.adjust($primary-color, $alpha: -0.9);
+}
+
+::-webkit-scrollbar-thumb {
+  background: color.adjust($primary-color, $alpha: -0.7);
+  border-radius: $border-radius-sm;
+
+  &:hover {
+    background: color.adjust($primary-color, $alpha: -0.5);
+  }
+}
+
+// ... остальные стили ... 
