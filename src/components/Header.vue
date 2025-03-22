@@ -64,8 +64,8 @@
         color="white"
       >
         <v-badge
-          :content="totalItems"
-          :model-value="totalItems > 0"
+          :content="cartItemsCount"
+          :model-value="cartItemsCount > 0"
           color="error"
           floating
         >
@@ -120,8 +120,8 @@
       <v-list-item to="/cart" @click="mobileMenu = false">
         <template v-slot:prepend>
           <v-badge
-            :content="totalItems"
-            :model-value="totalItems > 0"
+            :content="cartItemsCount"
+            :model-value="cartItemsCount > 0"
             color="error"
           >
             <v-icon>mdi-cart</v-icon>
@@ -154,7 +154,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
-import { useCartStore } from '@/stores/cart'
+import { cartService } from '@/services/cartService'
 
 interface MenuItem {
   title: string;
@@ -181,16 +181,11 @@ const menuItems = ref<MenuItem[]>([
 const mobileMenu = ref(false)
 const isMobile = ref(false)
 const drawer = ref(false)
-const cartStore = useCartStore()
+const cartItemsCount = ref(0)
 
 // Вычисляемое свойство для общего количества товаров
 const totalItems = computed(() => {
-  return cartStore.itemCount
-})
-
-// Добавим отслеживание изменений для отладки
-watch(() => cartStore.itemCount, (newCount) => {
-  console.log('Cart count changed:', newCount)
+  return cartService.getItemCount()
 })
 
 const checkMobile = () => {
@@ -200,6 +195,8 @@ const checkMobile = () => {
 onMounted(() => {
   checkMobile()
   window.addEventListener('resize', checkMobile)
+  updateCartCount()
+  window.addEventListener('cart-updated', updateCartCount)
 })
 
 onUnmounted(() => {
@@ -208,6 +205,11 @@ onUnmounted(() => {
 
 const toggleMobileMenu = () => {
   mobileMenu.value = !mobileMenu.value
+}
+
+// Функция для обновления количества товаров в корзине
+function updateCartCount() {
+  cartItemsCount.value = cartService.getItemCount()
 }
 </script>
 

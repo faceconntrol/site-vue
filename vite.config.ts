@@ -5,6 +5,7 @@ import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
 import { fileURLToPath, URL } from 'node:url'
 import path from 'path'
 import { visualizer } from 'rollup-plugin-visualizer'
+import fs from 'fs'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -103,6 +104,14 @@ export default defineConfig(({ mode }) => {
       },
       sourcemap: false,
       chunkSizeWarningLimit: 1000,
+    },
+    server: {
+      hmr: {
+        timeout: 120000
+      }
+    },
+    optimizeDeps: {
+      exclude: process.env.VITE_IGNORE_PARENT_PACKAGE_JSON ? ['**/package.json'] : []
     }
   }
 })

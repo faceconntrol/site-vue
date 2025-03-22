@@ -1,140 +1,152 @@
 <template>
-  <v-container class="pa-2">
+  <v-container fluid>
     <PageTitle title="Калькулятор стоимости" />
 
     <v-row>
-      <v-col cols="12" md="7">
-        <v-card class="pa-2">
-          <v-form @submit.prevent="calculate" class="calculator-form">
+      <!-- Левая половина - форма выбора -->
+      <v-col cols="12" md="6">
+        <v-card class="pa-4">
+          <v-form @submit.prevent="calculate">
+            <!-- Разрешение камер и фильтр производителя -->
+            <div class="mb-4">
+              <div class="d-flex align-center mb-2">
+                <div class="text-subtitle-1">Разрешение камер</div>
+                <v-spacer></v-spacer>
+                <v-btn-toggle v-model="form.manufacturer" mandatory density="compact">
+                  <v-btn value="all">Все</v-btn>
+                  <v-btn value="hikvision">Hikvision</v-btn>
+                  <v-btn value="hiwatch">HiWatch</v-btn>
+                </v-btn-toggle>
+              </div>
             <v-select
               v-model="form.resolution"
-              :items="resolutionTypes"
-              item-title="title"
-              item-value="value"
-              label="Разрешение камер"
+                :items="resolutionOptions"
+                label="Выберите разрешение"
+                variant="outlined"
               density="compact"
-              class="mb-1"
-              hide-details
-            />
-
-            <div class="cameras-section my-2">
-              <div v-for="brand in ['hikvision', 'hiwatch']" :key="brand" class="mb-1">
-                <div class="d-flex align-center mb-1">
-                  <v-icon icon="mdi-cctv" size="small" class="mr-1" />
-                  <span class="text-subtitle-2">{{ brand === 'hikvision' ? 'Hikvision' : 'HiWatch' }}</span>
+              ></v-select>
                 </div>
-                <div v-for="camera in filteredCamerasByBrand(brand)" :key="camera.id" class="camera-item py-1 px-2 rounded mb-1">
-                  <div class="d-flex align-center">
-                    <div class="product-image-wrapper mr-2">
-                      <v-img
-                        :src="camera.image"
-                        :alt="camera.title"
-                        class="rounded product-image"
-                        cover
-                      />
+
+            <!-- Список камер -->
+            <div class="camera-selection mb-4">
+              <div class="text-subtitle-1 mb-2">
+                <v-icon icon="mdi-cctv" class="mr-2" />
+                Выберите камеры:
                     </div>
+
+              <div v-for="camera in filteredCamerasByResolution" :key="camera.id" class="camera-item mb-2">
+                <div class="d-flex">
                     <v-checkbox
                       v-model="selectedCameraIds"
                       :value="camera.id"
-                      :label="camera.title"
-                      density="compact"
                       hide-details
-                      class="flex-grow-1 camera-checkbox"
-                    />
-                    <v-text-field
-                      v-if="selectedCameraIds.includes(camera.id)"
-                      v-model.number="cameraCountMap[camera.id]"
-                      type="number"
-                      min="1"
-                      max="32"
+                    class="mr-2"
                       density="compact"
-                      hide-details
-                      class="camera-count-field"
-                      style="max-width: 70px;"
-                      @input="validateNumericInput"
-                    />
+                  ></v-checkbox>
+                  
+                  <div class="camera-thumbnail mr-2">
+                    <v-img
+                      :src="camera.image || '/images/placeholder.jpg'"
+                      width="50"
+                      height="50"
+                      cover
+                      class="rounded"
+                    ></v-img>
                   </div>
-                  <div class="text-caption text-grey-darken-1 ml-14">
-                    {{ camera.description }}
-                    <br>
-                    <strong>{{ formatPrice(camera.price) }} ₽</strong>
+                  
+                  <div class="camera-details flex-grow-1">
+                    <div class="text-body-2 font-weight-medium">{{ camera.title }}</div>
+                    <div class="text-subtitle-2 font-weight-bold">{{ formatPrice(camera.price) }} ₽</div>
+                  </div>
+                  
+                  <div v-if="selectedCameraIds.includes(camera.id)" class="camera-quantity">
+                    <v-btn size="x-small" icon variant="text" @click.stop="decrementCamera(camera.id)">
+                      <v-icon>mdi-minus</v-icon>
+                    </v-btn>
+                    <span class="mx-1">{{ cameraCountMap[camera.id] || 1 }}</span>
+                    <v-btn size="x-small" icon variant="text" @click.stop="incrementCamera(camera.id)">
+                      <v-icon>mdi-plus</v-icon>
+                    </v-btn>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="storage-section mb-2">
-              <div class="d-flex align-center mb-1">
-                <v-icon icon="mdi-harddisk" size="small" class="mr-1" />
-                <span class="text-subtitle-2">Хранение данных</span>
+            <!-- Хранение данных -->
+            <div class="storage-section mb-4">
+              <div class="text-subtitle-1 mb-2">
+                <v-icon icon="mdi-database" class="mr-2" />
+                Хранение данных
               </div>
-              <div class="d-flex gap-2">
+              
+              <!-- Видеорегистратор -->
                 <v-checkbox
                   v-model="form.useNvr"
                   label="Видеорегистратор"
-                  density="compact"
                   hide-details
-                />
-                <v-checkbox
-                  v-model="form.useCloud"
-                  label="Облачное хранилище"
                   density="compact"
-                  hide-details
-                />
-              </div>
-            </div>
+                class="mb-2"
+              ></v-checkbox>
 
             <v-select
               v-if="form.useNvr"
               v-model="form.selectedNvr"
-              :items="filteredNvrs"
+                :items="filteredNvrOptions"
+                item-title="title"
+                item-value="id"
+                return-object
+                label="Выберите видеорегистратор"
+                variant="outlined"
+                density="compact"
+                class="mb-3 ml-8"
+              ></v-select>
+              
+              <!-- Жесткий диск -->
+              <v-select
+                v-if="form.useNvr && form.selectedNvr"
+                v-model="form.selectedHdd"
+                :items="hddOptions"
               item-title="title"
+                item-value="id"
               return-object
-              :label="`Видеорегистратор (требуется минимум ${requiredChannels} ${getNounForm(requiredChannels, 'канал', 'канала', 'каналов')})`"
+                label="Выберите жесткий диск"
+                variant="outlined"
+                density="compact"
+                class="mb-3 ml-8"
+                @update:model-value="updateStorageDays"
+              ></v-select>
+              
+              <!-- Компактная информация о хранении архива -->
+              <v-alert
+                v-if="storageDays > 0"
+                :color="storageDaysColor"
               density="compact"
-              class="mb-2"
-              hide-details
-              :disabled="!form.useNvr || filteredNvrs.length === 0"
-            >
-              <template v-slot:item="{ props, item }">
-                <v-list-item v-bind="props" density="compact">
-                  <v-list-item-title class="text-body-2">{{ item.raw.title }}</v-list-item-title>
-                  <v-list-item-subtitle class="text-caption">
-                    {{ item.raw.channels }} каналов - {{ formatPrice(item.raw.price) }} ₽
-                  </v-list-item-subtitle>
-                </v-list-item>
-              </template>
-            </v-select>
-
-            <template v-if="form.useNvr && form.selectedNvr">
-              <div class="storage-hdd-section mb-2">
-                <div class="d-flex align-center mb-1">
-                  <v-icon icon="mdi-harddisk" size="small" class="mr-1" />
-                  <span class="text-subtitle-2">Жесткий диск для видеонаблюдения</span>
+                variant="tonal"
+                class="ml-8"
+              >
+                <div class="d-flex align-center">
+                  <v-icon :icon="storageDaysIcon" class="mr-2"></v-icon>
+                  <span>Примерный срок хранения: <strong>{{ storageDays }} {{ getDaysForm(storageDays) }}</strong></span>
                 </div>
-                
-                <v-radio-group
-                  v-model="form.selectedHdd"
+              </v-alert>
+              
+              <!-- Облачное хранилище -->
+              <v-checkbox
+                v-model="form.useCloud"
+                label="Облачное хранилище"
+                hide-details
                   density="compact"
-                  class="mt-1"
-                  hide-details
-                >
-                  <template v-for="hdd in hddOptions" :key="hdd.id">
-                    <v-radio
-                      :label="getHddLabel(hdd)"
-                      :value="hdd"
-                    />
-                  </template>
-                </v-radio-group>
+                class="mt-2"
+              ></v-checkbox>
               </div>
-            </template>
 
+            <!-- Кнопка расчета -->
             <v-btn
               color="primary"
-              :loading="loading"
-              :disabled="!isFormValid"
-              @click="calculate"
               block
+              type="submit"
+              :loading="isLoading"
+              variant="elevated"
             >
               Рассчитать стоимость
             </v-btn>
@@ -142,134 +154,125 @@
         </v-card>
       </v-col>
 
-      <v-col cols="12" md="5">
-        <v-card v-if="result" class="pa-3">
-          <h2 class="text-h6 mb-3">Результат расчета</h2>
+      <!-- Правая половина - результаты -->
+      <v-col cols="12" md="6">
+        <v-card v-if="calculationResults" class="pa-4">
+          <div class="text-h6 mb-4">Результаты расчета</div>
           
           <!-- Оборудование -->
-          <div class="mb-3">
-            <div class="text-subtitle-1 mb-2">Оборудование:</div>
-            <template v-for="camera in result.equipment.cameras" :key="camera.name">
-              <div class="d-flex justify-space-between mb-1">
-                <span>{{ camera.name }} ({{ camera.count }} шт.):</span>
-                <span>{{ formatPrice(camera.price * camera.count) }} ₽</span>
+          <v-expansion-panels class="mb-4">
+            <v-expansion-panel>
+              <v-expansion-panel-title>
+                <div class="d-flex align-center">
+                  <v-icon icon="mdi-cctv-off" class="mr-2"></v-icon>
+                  <span>Оборудование</span>
+                  <v-spacer></v-spacer>
+                  <span class="text-subtitle-1 font-weight-bold">
+                    {{ formatPrice(calculationResults.breakdown.equipment) }} ₽
+                  </span>
               </div>
+              </v-expansion-panel-title>
+              <v-expansion-panel-text>
+                <v-list>
+                  <v-list-item v-for="item in getEquipmentItems()" :key="item.name">
+                    <template v-slot:prepend>
+                      <v-icon :icon="item.icon"></v-icon>
             </template>
-
-            <!-- Монтажные коробки -->
-            <div class="d-flex justify-space-between mb-1">
-              <span>Монтажные коробки ({{ getTotalCameras }} шт.):</span>
-              <span>{{ formatPrice(result.breakdown.installation.mountingBox) }} ₽</span>
-            </div>
+                    <v-list-item-title>{{ item.name }}</v-list-item-title>
+                    <v-list-item-subtitle>
+                      {{ formatPrice(item.price) }} ₽ × {{ item.count }} = {{ formatPrice(item.total) }} ₽
+                    </v-list-item-subtitle>
+                  </v-list-item>
+                </v-list>
+              </v-expansion-panel-text>
+            </v-expansion-panel>
             
-            <template v-if="result.equipment.storage">
-              <div class="d-flex justify-space-between mb-1">
-                <span>{{ result.equipment.storage.name }}:</span>
-                <span>{{ formatPrice(result.equipment.storage.price) }} ₽</span>
-              </div>
-              <div v-if="result.equipment.storage.hdd" class="d-flex justify-space-between mb-1">
-                <span>{{ result.equipment.storage.hdd.name }}:</span>
-                <span>{{ formatPrice(result.equipment.storage.hdd.price) }} ₽</span>
-              </div>
-            </template>
-
-            <template v-if="result && result.equipment.network.items.length > 0">
-              <div class="result-section">
-                <h3 class="text-subtitle-1 font-weight-medium">Сетевое оборудование</h3>
-                <div v-for="(item, index) in result.equipment.network.items" :key="index" class="d-flex justify-space-between">
-                  <span>{{ item.name }} {{ item.count > 1 ? `(${item.count} шт.)` : '' }}</span>
-                  <span>{{ formatPrice(item.price) }} ₽</span>
+            <!-- Услуги -->
+            <v-expansion-panel>
+              <v-expansion-panel-title>
+                <div class="d-flex align-center">
+                  <v-icon icon="mdi-tools" class="mr-2"></v-icon>
+                  <span>Монтажные работы</span>
+                  <v-spacer></v-spacer>
+                  <span class="text-subtitle-1 font-weight-bold">
+                    {{ formatPrice(calculationResults.breakdown.services) }} ₽
+                  </span>
                 </div>
-              </div>
+              </v-expansion-panel-title>
+              <v-expansion-panel-text>
+                <v-list>
+                  <v-list-item v-for="item in getServiceItems()" :key="item.name">
+                    <template v-slot:prepend>
+                      <v-icon :icon="item.icon"></v-icon>
             </template>
-
-            <v-divider class="my-2" />
+                    <v-list-item-title>{{ item.name }}</v-list-item-title>
+                    <v-list-item-subtitle>
+                      {{ formatPrice(item.price) }} ₽ × {{ item.count }} = {{ formatPrice(item.total) }} ₽
+                    </v-list-item-subtitle>
+                  </v-list-item>
+                </v-list>
+              </v-expansion-panel-text>
+            </v-expansion-panel>
             
-            <div class="d-flex justify-space-between">
-              <strong>Итого за оборудование:</strong>
-              <strong>{{ formatPrice(getTotalEquipment) }} ₽</strong>
+            <!-- Облачное хранилище -->
+            <v-expansion-panel v-if="calculationResults.cloudStorage">
+              <v-expansion-panel-title>
+                <div class="d-flex align-center">
+                  <v-icon icon="mdi-cloud" class="mr-2"></v-icon>
+                  <span>Облачное хранилище</span>
+                  <v-spacer></v-spacer>
+                  <span class="text-subtitle-1 font-weight-bold text-info">
+                    {{ formatPrice(calculationResults.cloudStorage.monthlyPrice) }} ₽/мес
+                  </span>
             </div>
-          </div>
-
-          <!-- Монтажные работы -->
-          <div class="mb-3">
-            <div class="text-subtitle-1 mb-2">Монтажные работы:</div>
-            <div class="d-flex justify-space-between mb-1">
-              <span>Установка камер:</span>
-              <span>{{ formatPrice(result.breakdown.installation.cameraInstall) }} ₽</span>
-            </div>
-            <div class="d-flex justify-space-between mb-1">
-              <span>Настройка камер:</span>
-              <span>{{ formatPrice(result.breakdown.installation.cameraSetup) }} ₽</span>
-            </div>
-            <div class="d-flex justify-space-between mb-1">
-              <span>Пуско-наладочные работы:</span>
-              <span>{{ formatPrice(result.breakdown.installation.commissioning) }} ₽</span>
-            </div>
-            <template v-if="result.breakdown.installation.nvrInstall">
-              <div class="d-flex justify-space-between mb-1">
-                <span>Установка видеорегистратора:</span>
-                <span>{{ formatPrice(result.breakdown.installation.nvrInstall) }} ₽</span>
-              </div>
-              <div class="d-flex justify-space-between mb-1">
-                <span>Настройка видеорегистратора:</span>
-                <span>{{ formatPrice(result.breakdown.installation.nvrSetup) }} ₽</span>
-              </div>
+              </v-expansion-panel-title>
+              <v-expansion-panel-text>
+                <v-list>
+                  <v-list-item v-for="item in calculationResults.cloudStorage.cameras" :key="item.id">
+                    <template v-slot:prepend>
+                      <v-icon icon="mdi-cloud-upload"></v-icon>
             </template>
-
-            <v-divider class="my-2" />
-            
-            <div class="d-flex justify-space-between">
-              <strong>Итого за работы:</strong>
-              <strong>{{ formatPrice(getTotalWork) }} ₽</strong>
-            </div>
-          </div>
-
-          <!-- Облачное хранилище -->
-          <template v-if="result.breakdown.cloudStorage">
-            <div class="mb-3">
-              <div class="text-subtitle-1 mb-2">Облачное хранилище:</div>
-              <div class="d-flex justify-space-between mb-1">
-                <span>Ежемесячная плата:</span>
-                <span>{{ formatPrice(result.breakdown.cloudStorage) }} ₽</span>
+                    <v-list-item-title>{{ item.title }}</v-list-item-title>
+                    <v-list-item-subtitle>
+                      {{ formatPrice(item.price) }} ₽/мес × {{ item.count }} = {{ formatPrice(item.price * item.count) }} ₽/мес
+                    </v-list-item-subtitle>
+                  </v-list-item>
+                </v-list>
+              </v-expansion-panel-text>
+            </v-expansion-panel>
+          </v-expansion-panels>
+          
+          <!-- Итоговая стоимость -->
+          <v-card class="mt-6 bg-primary" variant="elevated">
+            <v-card-text>
+              <div class="d-flex align-center justify-space-between">
+                <span class="text-h5 text-white">Общая стоимость:</span>
+                <span class="text-h4 text-white font-weight-bold">
+                  {{ formatPrice(calculationResults.total) }} ₽
+                </span>
               </div>
-            </div>
-          </template>
-
-          <v-divider class="my-3" />
-
-          <!-- Итого -->
-          <div class="d-flex flex-column">
-            <div class="d-flex justify-space-between mb-1">
-              <span>Оборудование:</span>
-              <span>{{ formatPrice(getTotalEquipment) }} ₽</span>
-            </div>
-            <div class="d-flex justify-space-between mb-2">
-              <span>Монтажные работы:</span>
-              <span>{{ formatPrice(getTotalWork) }} ₽</span>
-            </div>
-            <div class="d-flex justify-space-between align-center">
-              <span class="text-h6">ИТОГО:</span>
-              <span class="text-h6 text-primary">{{ formatPrice(result.total) }} ₽</span>
-            </div>
-          </div>
-
+            </v-card-text>
+          </v-card>
+          
+          <!-- Примечание о кабеле -->
           <v-alert
             type="info"
             variant="tonal"
+            class="mt-4"
             density="compact"
-            class="text-caption mt-3 mb-0"
           >
-            {{ result.disclaimer }}
+            <p class="mb-0">Все расчеты указаны без учета стоимости и прокладки кабеля.</p>
+            <p class="mb-0">Примерный срок хранения архива: {{ storageDays }} {{ getDaysForm(storageDays) }}.</p>
           </v-alert>
 
           <v-btn
-            color="primary"
+            color="success"
             block
-            class="mt-3"
-            @click="showOrderDialog = true"
+            variant="elevated"
+            class="mt-4"
+            @click="orderSystem"
           >
-            Заказать
+            Оформить заказ
           </v-btn>
         </v-card>
       </v-col>
@@ -278,605 +281,473 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from '@vue/runtime-dom'
-import { useCatalogStore } from '@/stores/catalog'
-import { formatPrice } from '@/utils/helpers'
-import { NETWORK_EQUIPMENT } from '@/constants'
-import { STORAGE_BITRATE } from '@/constants/storage'
-import type { 
-  Product,
-  Form,
-  OrderForm,
-  CalculatorResult,
-  ResolutionType,
-  NetworkEquipment,
-  HddOption
-} from '@/types/store'
-import PageTitle from '@/components/PageTitle.vue'
+import { ref, computed, onMounted, watch } from 'vue';
+import PageTitle from '../components/PageTitle.vue';
+import { SecurityCalculator } from '../services/calculator';
+import { productsDB } from '../data/catalog';
+import type { Product } from '../types';
 
-const hddOptions: HddOption[] = [
-  { id: 'hdd-1tb', capacity: 1, title: 'WD Purple 1 ТБ', price: 6500 },
-  { id: 'hdd-2tb', capacity: 2, title: 'WD Purple 2 ТБ', price: 10000 },
-  { id: 'hdd-4tb', capacity: 4, title: 'WD Purple 4 ТБ', price: 13400 },
-  { id: 'hdd-6tb', capacity: 6, title: 'WD Purple 6 ТБ', price: 18500 }
-]
-
-interface Form {
-  selectedCameras: SelectedCamera[];
-  resolution: string;
-  selectedNvr: Product | null;
-  selectedHdd: HddOption | null;
-  useNvr: boolean;
-  useCloud: boolean;
-}
-
-const form = ref<Form>({
-  selectedCameras: [],
-  resolution: '',
+// Состояние формы
+const form = ref({
+  resolution: '2mp',
+  manufacturer: 'all',
+  useNvr: true,
   selectedNvr: null,
   selectedHdd: null,
-  useNvr: false,
   useCloud: false
-})
+});
 
-const loading = ref(false)
-const result = ref<CalculatorResult | null>(null)
-const showOrderDialog = ref(false)
-const orderFormRef = ref<any>(null)
-const orderFormValid = ref(false)
-const isSubmitting = ref(false)
-const showSuccess = ref(false)
-const orderFormErrors = ref<Record<string, string[]>>({})
+// Опции разрешения камер
+const resolutionOptions = [
+  { title: '2 МП (1080p)', value: '2mp' },
+  { title: '4 МП (1440p)', value: '4mp' },
+  { title: '5 МП (2560×1920)', value: '5mp' },
+  { title: '6 МП (3072×2048)', value: '6mp' },
+  { title: '8 МП (4K)', value: '8mp' }
+];
 
-const store = useCatalogStore()
-const selectedCameraIds = ref<string[]>([])
-const cameraCountMap = ref<Record<string, number>>({})
+// Мапа преобразования строкового обозначения разрешения в числовое
+const resolutionMap: Record<string, number> = {
+  '2mp': 2,
+  '4mp': 4,
+  '5mp': 5,
+  '6mp': 6,
+  '8mp': 8
+};
 
-// Добавляем наблюдатель за изменением выбранных камер
-watch(selectedCameraIds, (newIds, oldIds) => {
-  // Находим новые выбранные ID (которых не было в старом массиве)
-  const newlySelectedIds = newIds.filter(id => !oldIds?.includes(id))
+// Выбранные камеры
+const selectedCameraIds = ref<string[]>([]);
+
+// Количество выбранных камер
+const cameraCountMap = ref<Record<string, number>>({});
+
+// Состояние загрузки
+const isLoading = ref(false);
+
+// Расчетные значения хранения
+const storageDays = ref(0);
+const dailyStorage = ref(0);
+
+// Данные для расчета архива по стандартам Hikvision (H.265+, 20 к/с)
+const storageBitrates: Record<string, number> = {
+  '2mp': 1024, // ~1 Мбит/с для 2MP
+  '4mp': 2048, // ~2 Мбит/с для 4MP
+  '5mp': 2560, // ~2.5 Мбит/с для 5MP
+  '6mp': 3072, // ~3 Мбит/с для 6MP
+  '8mp': 4096  // ~4 Мбит/с для 8MP
+};
+
+// Получение выбранного разрешения в числовом формате
+const selectedResolutionMP = computed(() => {
+  return resolutionMap[form.value.resolution] || 2;
+});
+
+// Список камер, отфильтрованный по разрешению и производителю
+const filteredCamerasByResolution = computed(() => {
+  const exactResolution = selectedResolutionMP.value;
+  const manufacturer = form.value.manufacturer;
   
-  // Для каждого нового ID устанавливаем количество 1
-  newlySelectedIds.forEach(id => {
-    cameraCountMap.value[id] = 1
-  })
+  console.log(`Фильтрация камер по точному разрешению: ${exactResolution}MP, производитель: ${manufacturer}`);
   
-  // Удаляем количество для отмеченных камер
-  const unselectedIds = oldIds?.filter(id => !newIds.includes(id)) || []
-  unselectedIds.forEach(id => {
-    delete cameraCountMap.value[id]
-  })
-})
-
-// Сбрасываем все фильтры при монтировании компонента
-store.setCategory('')
-store.setBrand('')
-store.setSearchQuery('')
-
-const resolutionTypes: ResolutionType[] = [
-  { title: '2 Мп (1920×1080)', value: '2mp' },
-  { title: '4 Мп (2560×1440)', value: '4mp' },
-  { title: '6 Мп (3072×2048)', value: '6mp' },
-  { title: '8 Мп (3840×2160)', value: '8mp' },
-]
-
-const filteredCameras = computed(() => {
-  return store.products.value.filter(product => {
-    if (product.category !== 'camera') return false
-    if (!form.value.resolution) return true
+  // Получаем все камеры из каталога
+  let filteredCameras = Object.values(productsDB).filter(product => {
+    // Проверяем, что это камера
+    if (product.category !== 'camera') return false;
     
-    const resolution = product.specs.find((spec: string) => 
-      spec.toLowerCase().includes('мп') || 
-      spec.toLowerCase().includes('mp')
-    )
-    if (!resolution) return false
+    // Получаем разрешение камеры как число
+    const cameraResolution = Number(product.resolution) || 2;
     
-    const match = resolution.toLowerCase().match(/(\d+)\s*мп/i)
-    if (!match) return false
+    // Отладочная информация
+    console.log(`Проверка камеры ${product.id}: разрешение = ${cameraResolution}, требуется = ${exactResolution}`);
     
-    const resValue = match[1] + 'mp'
-    return resValue === form.value.resolution
-  })
-})
-
-const filteredCamerasByBrand = (brand: string) => {
-  return filteredCameras.value.filter(camera => camera.brand === brand)
-}
-
-const totalCameraCount = computed(() => {
-  return Object.values(cameraCountMap.value).reduce((sum, count) => sum + (count || 0), 0)
-})
-
-const filteredNvrs = computed(() => {
-  const totalCameras = totalCameraCount.value
-  
-  // Получаем максимальное разрешение выбранных камер
-  const maxCameraResolution = selectedCameraIds.value.reduce((maxRes, id) => {
-    const camera = store.products.value.find(p => p.id === id)
-    if (!camera) return maxRes
-    
-    // Ищем разрешение в спецификациях камеры
-    const resSpec = camera.specs.find(spec => 
-      spec.toLowerCase().includes('мп') || 
-      spec.toLowerCase().includes('mp')
-    )
-    
-    if (!resSpec) return maxRes
-    
-    const match = resSpec.match(/(\d+)\s*мп/i)
-    if (!match) return maxRes
-    
-    const resolution = parseInt(match[1])
-    return Math.max(maxRes, resolution)
-  }, 0)
-
-  console.log('Filtering NVRs:')
-  console.log('Total cameras needed:', totalCameras)
-  console.log('Max camera resolution:', maxCameraResolution, 'MP')
-  
-  return store.products.value.filter(product => {
-    if (product.category !== 'recorder') {
-      return false
+    // Камера подходит, если её разрешение совпадает с выбранным
+    // или если это особый случай для 2MP (разрешение может быть указано как 1.3, 1.8, 2)
+    if (exactResolution === 2) {
+      return cameraResolution <= 2;
     }
     
-    console.log(`\nChecking ${product.title}:`)
-    console.log('- Category:', product.category)
-    console.log('- Channels:', product.channels)
-    console.log('- Max Resolution:', product.maxResolution)
-    
-    // Проверяем наличие свойства channels
-    if (typeof product.channels !== 'number') {
-      console.warn(`- Warning: NVR ${product.title} has no channels property`)
-      return false
-    }
-    
-    // Проверяем достаточность каналов
-    const hasEnoughChannels = product.channels >= totalCameras
-    
-    // Проверяем поддержку разрешения камер
-    const supportsResolution = (product.maxResolution || 0) >= maxCameraResolution
-    
-    console.log('- Has enough channels:', hasEnoughChannels)
-    console.log('- Supports resolution:', supportsResolution)
-    
-    return hasEnoughChannels && supportsResolution
-  }).sort((a, b) => (a.channels || 0) - (b.channels || 0))
-})
-
-const isFormValid = computed(() => {
-  // Проверяем, что выбрана хотя бы одна камера
-  const hasCameras = selectedCameraIds.value.length > 0
+    // Для других разрешений сравниваем точно
+    return cameraResolution === exactResolution;
+  });
   
-  // Проверяем корректность количества камер
-  const hasValidCameraCounts = selectedCameraIds.value.every(id => 
-    cameraCountMap.value[id] && cameraCountMap.value[id] > 0
-  )
-
-  // Проверяем видеорегистратор, если он используется
-  const hasValidNvr = !form.value.useNvr || (
-    form.value.useNvr && form.value.selectedNvr !== null
-  )
-
-  // Проверяем HDD, если используется регистратор
-  const hasValidHdd = !form.value.useNvr || (
-    form.value.useNvr && form.value.selectedHdd !== null
-  )
-
-  console.log('Валидация формы:', {
-    hasCameras,
-    hasValidCameraCounts,
-    hasValidNvr,
-    hasValidHdd
-  })
-
-  return hasCameras && hasValidCameraCounts && hasValidNvr && hasValidHdd
-})
-
-const requiredChannels = computed(() => {
-  const totalCameras = totalCameraCount.value
-  if (totalCameras <= 4) return 4
-  if (totalCameras <= 8) return 8
-  if (totalCameras <= 16) return 16
-  return 32
-})
-
-// Расчет сетевого оборудования
-function calculateNetworkEquipment(cameraCount: number, cameras: Product[]) {
-  const networkItems = [];
-  let totalPrice = 0;
+  console.log(`Отфильтровано ${filteredCameras.length} камер по разрешению`);
   
-  // Проверяем, что константы сетевого оборудования определены
-  if (!NETWORK_EQUIPMENT || !NETWORK_EQUIPMENT.poeSwitch4 || !NETWORK_EQUIPMENT.poeSwitch8) {
-    console.error('Константы сетевого оборудования не определены');
-    return {
-      price: 0,
-      items: []
-    };
-  }
-
-  // Добавляем сетевое оборудование согласно требованиям
-  if (cameraCount === 1) {
-    // Для одной камеры - блок питания
-    networkItems.push({
-      name: "Блок питания для камеры",
-      price: 1000,
-      count: 1
-    });
-    totalPrice += 1000;
-  } else if (cameraCount >= 2 && cameraCount <= 4) {
-    // Для 2-4 камер - коммутатор DS-3E0106P-E/M
-    // Ищем в каталоге или используем фиксированную цену
-    const switch4Port = store.products.value.find(p => p.id === 'DS-3E0106P-E/M') || 
-                        { title: 'Коммутатор DS-3E0106P-E/M (4 порта PoE)', price: 4000 };
-    
-    networkItems.push({
-      name: switch4Port.title,
-      price: switch4Port.price,
-      count: 1
-    });
-    totalPrice += switch4Port.price;
-  } else if (cameraCount >= 5 && cameraCount <= 8) {
-    // Для 5-8 камер - коммутатор DS-3E0310P-E/M
-    const switch8Port = store.products.value.find(p => p.id === 'DS-3E0310P-E/M') || 
-                        { title: 'Коммутатор DS-3E0310P-E/M (8 портов PoE)', price: 6000 };
-    
-    networkItems.push({
-      name: switch8Port.title,
-      price: switch8Port.price,
-      count: 1
-    });
-    totalPrice += switch8Port.price;
-  } else if (cameraCount >= 9) {
-    // Для 9+ камер - рассчитываем количество коммутаторов DS-3E0106P-E/M
-    const switch4Port = store.products.value.find(p => p.id === 'DS-3E0106P-E/M') || 
-                        { title: 'Коммутатор DS-3E0106P-E/M (4 порта PoE)', price: 4000 };
-    
-    // Рассчитываем количество коммутаторов (округляем вверх)
-    const switchCount = Math.ceil(cameraCount / 4);
-    
-    networkItems.push({
-      name: `${switchCount}x ${switch4Port.title}`,
-      price: switch4Port.price * switchCount,
-      count: switchCount
-    });
-    totalPrice += switch4Port.price * switchCount;
-  }
-  
-  // Возвращаем результат
-  return {
-    price: totalPrice,
-    items: networkItems
-  };
-}
-
-const calculate = async () => {
-  loading.value = true
-  console.log('Начинаем расчет...')
-  console.log('Выбранные камеры:', selectedCameraIds.value)
-  console.log('Форма валидна:', isFormValid.value)
-
-  try {
-    // Проверяем, что выбрана хотя бы одна камера
-    if (selectedCameraIds.value.length === 0) {
-      throw new Error('Не выбрано ни одной камеры')
-    }
-
-    const selectedCameras = selectedCameraIds.value.map(id => ({
-      camera: store.products.value.find(p => p.id === id) as Product,
-      count: cameraCountMap.value[id]
-    }))
-
-    // Проверяем, что все камеры найдены
-    if (selectedCameras.some(item => !item.camera)) {
-      throw new Error('Не удалось найти одну из выбранных камер')
-    }
-
-    const totalCameras = selectedCameras.reduce((sum, item) => 
-      sum + item.count, 0)
-
-    // Монтажные работы 
-    const mountingBox = totalCameras * 700      // 700₽ за монтажную коробку
-    const cameraInstall = totalCameras * 1500   // 1500₽ за установку камеры
-    const cameraSetup = totalCameras * 400      // 400₽ за настройку камеры
-    const commissioning = totalCameras * 500    // 500₽ за пуско-наладку
-    const nvrInstall = form.value.useNvr ? 1500 : 0  // 1500₽ за установку регистратора
-    const nvrSetup = form.value.useNvr ? 1500 : 0    // 1500₽ за настройку регистратора
-
-    const installationTotal = mountingBox + cameraInstall + cameraSetup + 
-                             commissioning + nvrInstall + nvrSetup
-
-    // Проверяем наличие констант сетевого оборудования
-    if (!NETWORK_EQUIPMENT || !NETWORK_EQUIPMENT.poeSwitch4 || !NETWORK_EQUIPMENT.poeSwitch8) {
-      throw new Error('Не найдены константы сетевого оборудования')
-    }
-
-    const networkEquipment = calculateNetworkEquipment(
-      totalCameras,
-      selectedCameras.map(item => item.camera)
-    )
-
-    const camerasTotal = selectedCameras.reduce((sum, item) => 
-      sum + (item.camera.price * item.count), 0)
-    const storageTotal = form.value.useNvr && form.value.selectedNvr 
-      ? form.value.selectedNvr.price + (form.value.selectedHdd?.price || 0)
-      : 0
-    const cloudStorageTotal = form.value.useCloud ? totalCameras * 500 : 0
-
-    result.value = {
-      total: 0, // Будет пересчитано ниже
-      breakdown: {
-        cameras: camerasTotal,
-        storage: storageTotal,
-        cloudStorage: cloudStorageTotal,
-        installation: {
-          mountingBox,        // Монтажные коробки
-          cameraInstall,      // Установка камер
-          cameraSetup,        // Настройка камер
-          commissioning,      // Пуско-наладка
-          nvrInstall,        // Установка регистратора
-          nvrSetup           // Настройка регистратора
-        },
-        network: networkEquipment.price
-      },
-      equipment: {
-        cameras: selectedCameras.map(item => ({
-          name: item.camera.title,
-          price: item.camera.price,
-          count: item.count
-        })),
-        storage: form.value.useNvr && form.value.selectedNvr ? {
-          type: 'nvr',
-          name: form.value.selectedNvr.title,
-          price: form.value.selectedNvr.price,
-          hdd: form.value.selectedHdd ? {
-            name: form.value.selectedHdd.title,
-            price: form.value.selectedHdd.price
-          } : undefined
-        } : undefined,
-        network: {
-          price: networkEquipment.price,
-          items: networkEquipment.items
-        }
-      },
-      installationDetails: {
-        cameraInstallation: cameraInstall,
-        cameraSetup: cameraSetup,
-        nvrInstallation: nvrInstall,
-        networkInstallation: networkEquipment.price
-      },
-      disclaimer: 'Стоимость указана без учета кабеля и его прокладки. Стоимость облачного хранения указана за месяц.'
-    }
-
-    // Правильный расчет общей стоимости
-    const equipmentTotal = result.value.breakdown.cameras + 
-      result.value.breakdown.storage + 
-      result.value.breakdown.cloudStorage + 
-      result.value.breakdown.network +
-      result.value.breakdown.installation.mountingBox;
+  // Фильтрация по производителю, если выбран не "all"
+  if (manufacturer !== 'all') {
+    filteredCameras = filteredCameras.filter(camera => {
+      if (manufacturer === 'hikvision') {
+        // Проверяем, является ли камера Hikvision
+        if (camera.brand && camera.brand.toLowerCase() === 'hikvision') return true;
+        
+        const id = (camera.id || '').toLowerCase();
+        const title = (camera.title || '').toLowerCase();
+        
+        return (id.includes('hikvision') || title.includes('hikvision') || 
+                (id.startsWith('ds-') && !id.includes('hiwatch') && !title.includes('hiwatch')));
+      }
       
-    const calculatedInstallationTotal = 
-      result.value.breakdown.installation.cameraInstall + 
-      result.value.breakdown.installation.cameraSetup + 
-      result.value.breakdown.installation.commissioning + 
-      (result.value.breakdown.installation.nvrInstall || 0) + 
-      (result.value.breakdown.installation.nvrSetup || 0);
+      if (manufacturer === 'hiwatch') {
+        // Проверяем, является ли камера HiWatch
+        if (camera.brand && camera.brand.toLowerCase() === 'hiwatch') return true;
+        
+        const id = (camera.id || '').toLowerCase();
+        const title = (camera.title || '').toLowerCase();
+        
+        return (id.includes('hiwatch') || title.includes('hiwatch') || id.includes('hw-'));
+      }
       
-    result.value.total = equipmentTotal + calculatedInstallationTotal;
-
-    console.log('Расчет успешно завершен')
-  } catch (error) {
-    console.error('Ошибка при расчете:', error)
-    alert('Произошла ошибка при расчете. Пожалуйста, проверьте введенные данные.')
-  } finally {
-    loading.value = false
+      return false;
+    });
+    
+    console.log(`Отфильтровано ${filteredCameras.length} камер по производителю ${manufacturer}`);
   }
+  
+  // Сортировка: сначала по разрешению, затем по цене
+  return filteredCameras.sort((a, b) => {
+    return (a.price || 0) - (b.price || 0);
+  });
+});
+
+// Список NVR, отфильтрованный по разрешению и каналам
+const filteredNvrOptions = computed(() => {
+  const maxResolution = selectedResolutionMP.value;
+  const requiredChannels = getRequiredChannels();
+  
+  console.log(`Поиск регистраторов: требуется разрешение ${maxResolution}MP и ${requiredChannels} каналов`);
+  
+  // Фильтруем регистраторы по разрешению и количеству каналов
+  const filteredRecorders = Object.values(productsDB).filter(product => {
+    if (product.category !== 'recorder') return false;
+    
+    // Получаем максимальное поддерживаемое разрешение
+    const nvrMaxResolution = Number(product.maxResolution) || 2;
+    
+    // Получаем количество каналов
+    const nvrChannels = Number(product.channels) || 4;
+    
+    // Регистратор подходит, если его максимальное разрешение >= требуемого
+    // и количество каналов >= требуемого
+    return (nvrMaxResolution >= maxResolution && nvrChannels >= requiredChannels);
+  });
+  
+  console.log(`Найдено ${filteredRecorders.length} подходящих регистраторов`);
+  
+  // Сортировка регистраторов по цене и количеству каналов
+  return filteredRecorders.sort((a, b) => {
+    const channelsA = Number(a.channels) || 4;
+    const channelsB = Number(b.channels) || 4;
+    
+    // Если разница в каналах небольшая, сортируем по цене
+    if (Math.abs(channelsA - channelsB) <= 4) {
+      return (a.price || 0) - (b.price || 0);
+    }
+    
+    // Иначе предпочитаем регистратор с меньшим (но достаточным) числом каналов
+    return channelsA - channelsB;
+  });
+});
+
+// Опции для жестких дисков (WD Purple Surveillance)
+const hddOptions = [
+  { title: 'HDD WD Purple 1TB', id: 'hdd1tb', value: 1000 * 1024, price: 6500 },
+  { title: 'HDD WD Purple 2TB', id: 'hdd2tb', value: 2000 * 1024, price: 10000 },
+  { title: 'HDD WD Purple 4TB', id: 'hdd4tb', value: 4000 * 1024, price: 13400 },
+  { title: 'HDD WD Purple 6TB', id: 'hdd6tb', value: 6000 * 1024, price: 18500 },
+  { title: 'HDD WD Purple 8TB', id: 'hdd8tb', value: 8000 * 1024, price: 24000 }
+];
+
+// Расчет времени хранения архива
+function updateStorageDays() {
+  // Если нет выбранного HDD или не используется NVR, то храним 0 дней
+  if (!form.value.useNvr || !form.value.selectedHdd) {
+    storageDays.value = 0;
+    dailyStorage.value = 0;
+    return;
+  }
+  
+  // Получаем размер выбранного диска в МБ
+  const diskSizeInMB = form.value.selectedHdd.value;
+  
+  // Рассчитываем суммарный битрейт всех камер (по данным от Hikvision)
+  let totalBitrateKbps = 0;
+  
+  for (const id of selectedCameraIds.value) {
+    const camera = productsDB[id];
+    if (!camera) continue;
+    
+    // Определяем битрейт камеры в зависимости от разрешения
+    const resolutionMp = Number(camera.resolution) || 2;
+    let bitrateKey = '2mp';
+    
+    if (resolutionMp >= 8) bitrateKey = '8mp';
+    else if (resolutionMp >= 6) bitrateKey = '6mp';
+    else if (resolutionMp >= 5) bitrateKey = '5mp';
+    else if (resolutionMp >= 4) bitrateKey = '4mp';
+    
+    const bitrate = storageBitrates[bitrateKey];
+    
+    // Умножаем на количество камер данного типа
+    const count = cameraCountMap.value[id] || 1;
+    totalBitrateKbps += bitrate * count;
+    
+    console.log(`Камера ${camera.title}: разрешение ${resolutionMp}MP, битрейт ${bitrate} кбит/с, кол-во: ${count}`);
+  }
+  
+  // Рассчитываем ежедневный объем данных в МБ
+  // totalBitrateKbps * 3600 секунд * 24 часа / 8 (биты в байты) / 1024 (в МБ)
+  const dailyStorageMB = (totalBitrateKbps * 3600 * 24) / 8 / 1024;
+  dailyStorage.value = Math.round(dailyStorageMB);
+  
+  // Рассчитываем количество дней хранения
+  // Учитываем, что реально доступно около 90% объема диска
+  const availableDiskSpace = diskSizeInMB * 0.9;
+  storageDays.value = Math.floor(availableDiskSpace / dailyStorageMB);
+  
+  console.log(`Расчет хранения: ${dailyStorageMB.toFixed(2)} МБ в день, ${storageDays.value} дней на диске ${diskSizeInMB/1024} ТБ`);
 }
 
-const submitOrder = async () => {
-  isSubmitting.value = true
-  try {
-    // Здесь должна быть логика отправки заказа
-    showSuccess.value = true
-    showOrderDialog.value = false
-  } catch (error) {
-    console.error('Error submitting order:', error)
-  } finally {
-    isSubmitting.value = false
-  }
+// Инкремент и декремент количества камер
+function incrementCamera(id: string) {
+  const currentCount = cameraCountMap.value[id] || 1;
+  cameraCountMap.value[id] = currentCount + 1;
+  updateStorageDays();
 }
 
-// Вспомогательная функция для склонения существительных
-function getNounForm(number: number, one: string, two: string, five: string) {
-  let n = Math.abs(number)
-  n %= 100
-  if (n >= 5 && n <= 20) {
-    return five
+function decrementCamera(id: string) {
+  const currentCount = cameraCountMap.value[id] || 1;
+  if (currentCount > 1) {
+    cameraCountMap.value[id] = currentCount - 1;
   }
-  n %= 10
-  if (n === 1) {
-    return one
-  }
-  if (n >= 2 && n <= 4) {
-    return two
-  }
-  return five
+  updateStorageDays();
 }
 
-// Добавим вычисляемые свойства для подсчета итогов
-const getTotalEquipment = computed(() => {
-  if (!result.value) return 0
-  return result.value.breakdown.cameras + 
-         result.value.breakdown.storage + 
-         result.value.breakdown.cloudStorage + 
-         result.value.breakdown.network +
-         result.value.breakdown.installation.mountingBox
-})
+// Цвет индикатора хранения
+const storageDaysColor = computed(() => {
+  if (storageDays.value <= 7) return 'error';
+  if (storageDays.value <= 14) return 'warning';
+  return 'success';
+});
 
-const getTotalWork = computed(() => {
-  if (!result.value) return 0
-  const installation = result.value.breakdown.installation
-  return installation.cameraInstall + 
-         installation.cameraSetup + 
-         installation.commissioning + 
-         (installation.nvrInstall || 0) + 
-         (installation.nvrSetup || 0)
-})
+// Иконка для индикатора хранения
+const storageDaysIcon = computed(() => {
+  if (storageDays.value <= 7) return 'mdi-alert-circle';
+  if (storageDays.value <= 14) return 'mdi-alert';
+  return 'mdi-check-circle';
+});
 
-const getTotalCameras = computed(() => {
-  if (!result.value) return 0
-  return result.value.equipment.cameras.reduce((sum, camera) => sum + camera.count, 0)
-})
-
-// Обновим функцию расчета времени хранения
-const calculateStorageDays = computed(() => {
-  if (!form.value.selectedHdd || !form.value.resolution) return 0
-  
-  const totalCameras = selectedCameraIds.value.reduce((sum, id) => 
-    sum + (cameraCountMap.value[id] || 0), 0)
-  
-  const resolution = form.value.resolution as keyof typeof STORAGE_BITRATE
-  
-  // Проверка на наличие объекта STORAGE_BITRATE и правильного ключа resolution
-  if (!STORAGE_BITRATE || !STORAGE_BITRATE[resolution]) {
-    console.error('Не найдены данные о битрейте для разрешения', resolution);
-    return 0;
-  }
-  
-  const bitrateInfo = STORAGE_BITRATE[resolution]
-  
-  if (!bitrateInfo) return 0
-
-  // Расчет только для основного потока
-  const totalBitrate = bitrateInfo.mainstream.bitrate * totalCameras
-  const bytesPerDay = (totalBitrate * 3600 * 24) / (8 * 1024) // МБ в день
-  const gbPerDay = bytesPerDay / 1024 // ГБ в день
-  
-  const hddCapacityGB = form.value.selectedHdd?.capacity ? form.value.selectedHdd.capacity * 1000 : 0 // переводим ТБ в ГБ
-  const reserveSpace = 0.1 // 10% резерв для системы
-  const usableSpace = hddCapacityGB * (1 - reserveSpace)
-  
-  return Math.floor(usableSpace / gbPerDay)
-})
-
-// Упростим функцию отображения информации
-const getBitrateInfo = (resolution: string) => {
-  const info = STORAGE_BITRATE[resolution as keyof typeof STORAGE_BITRATE]
-  if (!info) return ''
-  return info.resolution
-}
-
-// Добавим функцию форматирования дней
-const formatDays = (days: number) => {
-  if (days === 0) return 'менее 1 дня'
-  if (days === 1) return '1 день'
-  if (days > 1 && days < 5) return `${days} дня`
-  return `${days} дней`
-}
-
-const getHddLabel = (hdd: HddOption) => {
-  const baseLabel = `${hdd.title} (${formatPrice(hdd.price)} ₽)`
-  
-  if (form.value.selectedHdd?.id !== hdd.id) {
-    return baseLabel
-  }
-  
-  const totalCameras = selectedCameraIds.value.reduce((sum, id) => 
-    sum + (cameraCountMap.value[id] || 0), 0)
-  
-  return `${baseLabel} - ${formatDays(calculateStorageDays.value)} записи при ${totalCameras} ${
-    getNounForm(totalCameras, 'камере', 'камерах', 'камерах')
-  } ${form.value.resolution}`
-}
-
-// Функция форматирования цены
+// Форматирование цены
 function formatPrice(price: number): string {
-  return new Intl.NumberFormat('ru-RU').format(Math.round(price))
+  return new Intl.NumberFormat('ru-RU').format(price);
 }
 
-// Функция для проверки числовых значений
-function validateNumericInput(event: Event) {
-  const input = event.target as HTMLInputElement
-  const value = input.value
+// Получение формы слова "день" в зависимости от числа
+function getDaysForm(days: number): string {
+  return getPluralForm(days, 'день', 'дня', 'дней');
+}
+
+// Вспомогательная функция для склонения слов
+function getPluralForm(count: number, form1: string, form2: string, form5: string): string {
+  const lastDigit = count % 10;
+  const lastTwoDigits = count % 100;
   
-  // Если ввод не является числом, очищаем поле
-  if (value && isNaN(Number(value))) {
-    input.value = ''
+  if (lastDigit === 1 && lastTwoDigits !== 11) {
+    return form1;
+  } else if (
+    [2, 3, 4].includes(lastDigit) && 
+    ![12, 13, 14].includes(lastTwoDigits)
+  ) {
+    return form2;
+  } else {
+    return form5;
   }
+}
+
+// Получение списка элементов оборудования для результатов
+function getEquipmentItems() {
+  if (!calculationResults.value || !calculationResults.value.equipment) {
+    return [];
+  }
+  
+  const equipment = [];
+  
+  for (const [key, item] of Object.entries(calculationResults.value.equipment)) {
+    let icon = 'mdi-cctv';
+    
+    if (key.includes('nvr')) icon = 'mdi-video';
+    if (key.includes('hdd')) icon = 'mdi-harddisk';
+    if (key.includes('switch')) icon = 'mdi-switch';
+    if (key.includes('power')) icon = 'mdi-power-plug';
+    if (key.includes('mounting')) icon = 'mdi-toolbox';
+    
+    equipment.push({
+      ...item,
+      icon
+    });
+  }
+  
+  return equipment;
+}
+
+// Получение списка услуг для результатов
+function getServiceItems() {
+  if (!calculationResults.value || !calculationResults.value.services) {
+    return [];
+  }
+  
+  const services = [];
+  
+  for (const [key, service] of Object.entries(calculationResults.value.services)) {
+    let icon = 'mdi-tools';
+    
+    if (key.includes('installation')) icon = 'mdi-hammer-wrench';
+    if (key.includes('setup')) icon = 'mdi-cog';
+    if (key.includes('commission')) icon = 'mdi-check-circle';
+    
+    services.push({
+      ...service,
+      icon
+    });
+  }
+  
+  return services;
+}
+
+// Результаты расчета
+const calculationResults = ref(null);
+
+// Расчет стоимости системы
+async function calculate() {
+  isLoading.value = true;
+  
+  try {
+    // Создаем калькулятор
+    const calculator = new SecurityCalculator(productsDB);
+    
+    // Создаем массив камер с их количеством
+    const cameras = selectedCameraIds.value.map(id => ({
+      id,
+      count: cameraCountMap.value[id] || 1
+    }));
+    
+    // Создаем конфигурацию для расчета
+    const config = {
+      cameras,
+      useNvr: form.value.useNvr,
+      useCloud: form.value.useCloud
+    };
+    
+    // Добавляем идентификаторы NVR и HDD, если они выбраны
+    if (form.value.useNvr && form.value.selectedNvr) {
+      config.nvrId = form.value.selectedNvr.id;
+    }
+    
+    if (form.value.selectedHdd) {
+      config.hddId = form.value.selectedHdd.id;
+    }
+    
+    // Вызываем расчет
+    calculationResults.value = calculator.calculateTotal(config);
+    
+    // Добавляем информацию о хранении архива
+    calculationResults.value.storage = {
+      days: storageDays.value,
+      dailySize: dailyStorage.value
+    };
+    
+    console.log('Результаты расчета:', calculationResults.value);
+  } catch (error) {
+    console.error('Ошибка при расчете:', error);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+// Оформление заказа
+function orderSystem() {
+  // Здесь будет логика оформления заказа
+  console.log('Заказ оформлен:', {
+    cameras: selectedCameraIds.value.map(id => ({
+      id,
+      title: productsDB[id].title,
+      count: cameraCountMap.value[id] || 1
+    })),
+    nvr: form.value.selectedNvr,
+    hdd: form.value.selectedHdd,
+    useCloud: form.value.useCloud,
+    total: calculationResults.value?.total
+  });
+}
+
+// Инициализация
+onMounted(() => {
+  console.log('Калькулятор инициализирован');
+  
+  // Отладочная информация о камерах в каталоге
+  const camerasMap = {};
+  Object.values(productsDB)
+    .filter(p => p.category === 'camera')
+    .forEach(camera => {
+      const res = Number(camera.resolution) || 2;
+      camerasMap[res] = (camerasMap[res] || 0) + 1;
+    });
+  
+  console.log('Распределение камер по разрешению:', camerasMap);
+});
+
+// Получение требуемого количества каналов
+function getRequiredChannels(): number {
+  return selectedCameraIds.value.reduce((sum, id) => {
+    return sum + (cameraCountMap.value[id] || 1);
+  }, 0);
 }
 </script>
 
 <style scoped>
-.calculator-form {
-  max-width: 100%;
-}
-
 .camera-item {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  transition: background-color 0.2s;
-  font-size: 0.875rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 8px;
+  transition: all 0.2s ease;
 }
 
 .camera-item:hover {
-  background-color: rgba(0, 0, 0, 0.02);
-}
-
-.camera-checkbox :deep(.v-label) {
-  font-size: 0.875rem;
-  opacity: 1;
-  line-height: 1.2;
-}
-
-.camera-count-field {
-  margin-left: 8px;
-}
-
-.cameras-section {
-  max-height: 300px;
-  overflow-y: auto;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 4px;
-  padding: 6px;
-}
-
-:deep(.v-expansion-panel-title) {
-  padding: 8px 16px;
-}
-
-:deep(.v-expansion-panel-text__wrapper) {
-  padding: 12px 16px;
-}
-
-.product-image-wrapper {
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.product-image {
-  width: 100%;
-  height: 100%;
   background-color: #f5f5f5;
 }
 
-.text-caption {
-  margin-left: 44px;
-  font-size: 0.75rem;
-  line-height: 1.2;
+.camera-thumbnail {
+  min-width: 50px;
+  width: 50px;
+  height: 50px;
+  overflow: hidden;
 }
 
-.text-subtitle-2 {
-  font-size: 0.875rem;
+.camera-quantity {
+  display: flex;
+  align-items: center;
+  min-width: 80px;
+  justify-content: flex-end;
 }
 
-:deep(.v-selection-control) {
-  min-height: 28px;
+.storage-info {
+  border: 1px solid #e0e0e0;
 }
 
-.storage-estimate {
-  font-size: 0.875rem;
+.storage-days {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  padding: 8px 0;
+}
+
+.text-error {
+  color: #ef4444;
+}
+
+.text-warning {
+  color: #f59e0b;
+}
+
+.text-success {
+  color: #10b981;
 }
 </style> 

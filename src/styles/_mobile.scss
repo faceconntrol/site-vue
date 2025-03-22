@@ -1,0 +1,123 @@
+/* Специфические стили для iPhone */
+@media only screen and (max-width: 428px) and (-webkit-min-device-pixel-ratio: 2) {
+  :root {
+    --is-iphone: 1;
+  }
+  
+  body {
+    /* Принудительно применяем iOS стили */
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif !important;
+  }
+  
+  .v-application {
+    /* Безопасная зона для iPhone X и новее */
+    padding-top: env(safe-area-inset-top, 0);
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+  
+  .v-btn {
+    border-radius: 8px !important;
+  }
+  
+  .v-card {
+    border-radius: 10px !important;
+  }
+  
+  /* Стили для нижней навигации на iPhone */
+  .v-bottom-navigation {
+    padding-bottom: env(safe-area-inset-bottom, 0) !important;
+  }
+} 
+
+/* Более заметные стили для мобильных устройств */
+.mobile-device {
+  --primary-color: #1976D2; /* Контрастный цвет для мобильной версии */
+  
+  .v-app-bar {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+  }
+  
+  .v-bottom-navigation {
+    background-color: white !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .v-btn {
+    font-size: 14px !important;
+  }
+  
+  .v-card {
+    margin-bottom: 12px;
+  }
+  
+  /* Стили для bottom sheet */
+  .v-bottom-sheet {
+    .v-card-title {
+      font-size: 1.1rem;
+      padding: 16px;
+    }
+    
+    .v-list-item {
+      min-height: 48px;
+      padding: 0 16px;
+    }
+  }
+  
+  /* Стили для drawer */
+  .v-navigation-drawer {
+    .v-list-group__header.v-list-item--active {
+      background-color: transparent;
+    }
+    
+    .v-list-group__items .v-list-item {
+      padding-left: 16px;
+    }
+    
+    .v-list-item__prepend {
+      padding-right: 16px;
+    }
+  }
+  
+  /* Улучшенные иконки навигации */
+  .v-bottom-navigation .v-btn {
+    .v-icon {
+      margin-bottom: 4px;
+    }
+    
+    font-size: 0.7rem;
+  }
+}
+
+/* Явно устанавливаем стили для iPhone */
+.ios-device {
+  .v-card {
+    border-radius: 10px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  }
+  
+  .v-btn {
+    border-radius: 8px !important;
+  }
+  
+  .v-app-bar-title {
+    font-weight: 600 !important;
+    text-align: center !important;
+  }
+  
+  .v-bottom-navigation {
+    height: 64px !important;
+    padding-bottom: 8px;
+  }
+  
+  .v-bottom-sheet .v-card {
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  .v-list-item {
+    border-radius: 8px;
+    margin: 2px 8px;
+  }
+} 

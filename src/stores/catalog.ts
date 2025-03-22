@@ -5,6 +5,7 @@ import { productsDB } from '@/data/catalog'
 const selectedCategory = ref('')
 const selectedBrand = ref('')
 const searchQuery = ref('')
+const selectedSection = ref('video')
 
 const products = computed(() => Object.entries(productsDB).map(([id, product]) => ({
   ...product,
@@ -35,6 +36,7 @@ const filteredProducts = computed(() => {
 
 export const useCatalogStore = () => {
   const setCategory = (category: string) => {
+    console.log(`[DEBUG] Store: Установка категории: ${category}`)
     selectedCategory.value = category
   }
 
@@ -46,14 +48,42 @@ export const useCatalogStore = () => {
     searchQuery.value = query
   }
 
+  const setSelectedSection = (section: string) => {
+    console.log(`[DEBUG] Store: Установка выбранной секции: ${section}`);
+    if (section === 'video' || section === 'smart-home') {
+      selectedSection.value = section;
+    }
+  }
+
   return {
     selectedCategory,
     selectedBrand,
     searchQuery,
+    selectedSection,
     products,
     filteredProducts,
     setCategory,
     setBrand,
-    setSearchQuery
+    setSearchQuery,
+    setSelectedSection
+  }
+}
+
+export default {
+  state: {
+    selectedSection: 'video'
+  },
+  
+  mutations: {
+    setSelectedSection(state: any, section: string) {
+      console.log(`[DEBUG] Store: Установка выбранной секции: ${section}`);
+      if (section === 'video' || section === 'smart-home') {
+        state.selectedSection = section;
+      }
+    },
+    
+    setCategoryFilter(state: any, category: string) {
+      // Реализация установки категории
+    }
   }
 } 

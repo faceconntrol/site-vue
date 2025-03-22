@@ -1,36 +1,24 @@
 import { createApp } from '@vue/runtime-dom'
-import { createHead } from '@vueuse/head'
 import App from './App.vue'
-
-// Стили
-import './styles/global.scss'
-
-// Vuetify
-import vuetify from './plugins/vuetify'
-
-// Router
 import router from './router'
+import vuetify from './plugins/vuetify'
+import { createHead } from '@vueuse/head'
 
-// Pinia
-import { createPinia } from 'pinia'
+// Импортируем все компоненты Vuetify напрямую для предотвращения проблем с загрузкой
+import 'vuetify/components'
 
-// Аналитика
-import { initYandexMetrika } from './plugins/analytics'
-
-// Компоненты
+// Добавляем отладочную информацию
+console.log('Starting app initialization');
+console.log('Window width:', window.innerWidth);
+console.log('User Agent:', navigator.userAgent);
 
 const app = createApp(App)
 const head = createHead()
-const pinia = createPinia()
 
 app.use(router)
 app.use(vuetify)
-app.use(pinia)
 app.use(head)
 
-// Инициализация аналитики только в production
-if (import.meta.env.PROD) {
-  initYandexMetrika(router, 12345678) // Замените на реальный ID счётчика
-}
-
 app.mount('#app')
+
+console.log('App initialization complete');

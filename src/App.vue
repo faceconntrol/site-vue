@@ -1,8 +1,68 @@
 <script setup lang="ts">
 import Header from '@/components/Header.vue'
 import ScrollToTop from '@/components/ScrollToTop.vue'
-import { useHead } from 'unhead'
-import { computed, onErrorCaptured } from 'vue'
+import MobileHeader from '@/components/MobileHeader.vue'
+import MobileBottomNav from '@/components/MobileBottomNav.vue'
+import { useHead } from '@vueuse/head'
+import { computed, onMounted, ref } from 'vue'
+// Импортируем onErrorCaptured из композиционного API Vue
+import { onErrorCaptured } from '@vue/runtime-core'
+import Notification from '@/components/Notification.vue'
+import { useVisualEffects } from '@/composables/useVisualEffects'
+
+// Инициализируем определение мобильной платформы временным решением
+// пока исправляем проблему с импортом
+const isMobile = ref(false);
+const isIOS = ref(false);
+
+// Определяем мобильную платформу непосредственно здесь
+onMounted(() => {
+  console.log('========= MOBILE DEBUG INFO =========');
+  console.log('Device Pixel Ratio:', window.devicePixelRatio);
+  console.log('User Agent:', navigator.userAgent);
+  console.log('Window Dimensions:', window.innerWidth + 'x' + window.innerHeight);
+  console.log('Screen Dimensions:', window.screen.width + 'x' + window.screen.height);
+  console.log('====================================');
+  
+  const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+  const isIOSDevice = /iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream;
+  const isAndroidDevice = /android/i.test(userAgent);
+  
+  // Проверка только по размеру окна
+  const windowWidth = window.innerWidth;
+  console.log('Window width check:', windowWidth);
+  
+  // Принудительно применяем мобильные стили если ширина меньше 768px
+  if (windowWidth <= 768) {
+    document.body.classList.add('mobile-device');
+    isMobile.value = true;
+    
+    // Принудительно добавляем класс для iOS-подобного дизайна, пока тестируем
+    document.body.classList.add('ios-device');
+    isIOS.value = true;
+    console.log('Mobile device detected by width, added classes');
+  }
+  
+  // Установка переменной для правильной высоты на мобильных
+  document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+  
+  // Обработчик изменения размера экрана
+  window.addEventListener('resize', () => {
+    const newWidth = window.innerWidth;
+    if (newWidth <= 768 && !isMobile.value) {
+      document.body.classList.add('mobile-device');
+      document.body.classList.add('ios-device');
+      isMobile.value = true;
+      isIOS.value = true;
+    } else if (newWidth > 768 && isMobile.value) {
+      document.body.classList.remove('mobile-device');
+      document.body.classList.remove('ios-device');
+      isMobile.value = false;
+      isIOS.value = false;
+    }
+    document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+  });
+});
 
 const currentPage = computed(() => {
   // Implement the logic to determine the current page
@@ -14,15 +74,24 @@ const currentPage = computed(() => {
   }
 })
 
+// useHead({
+//   title: computed(() => `${currentPage.value} | Третий глаз`),
+//   meta: [
+//     { name: 'description', content: computed(() => currentPage.value.description) },
+//     { property: 'og:title', content: computed(() => currentPage.value.title) },
+//     { property: 'og:description', content: computed(() => currentPage.value.description) },
+//     { property: 'og:image', content: computed(() => currentPage.value.image) }
+//   ]
+// })
+
 useHead({
-  title: computed(() => `${currentPage.value} | Третий глаз`),
+  title: 'Система видеонаблюдения',
   meta: [
-    { name: 'description', content: computed(() => currentPage.value.description) },
-    { property: 'og:title', content: computed(() => currentPage.value.title) },
-    { property: 'og:description', content: computed(() => currentPage.value.description) },
-    { property: 'og:image', content: computed(() => currentPage.value.image) }
+    { name: 'description', content: 'Профессиональные системы видеонаблюдения' }
   ]
 })
+
+const { isNotificationVisible, notificationMessage } = useVisualEffects()
 
 onErrorCaptured((err, instance, info) => {
   console.error('Caught error:', err)
@@ -33,17 +102,31 @@ onErrorCaptured((err, instance, info) => {
 
 <template>
   <v-app>
-    <Header />
-
+    <!-- Заменяем стандартный header на мобильный, если на мобильном устройстве -->
+    <Header v-if="!isMobile" />
+    <MobileHeader v-else />
+    
     <v-main>
       <router-view v-slot="{ Component }">
-        <transition name="fade" mode="out-in">
+        <transition 
+          :name="isMobile ? 'page-transition' : 'fade'" 
+          mode="out-in"
+        >
           <component :is="Component" />
         </transition>
       </router-view>
     </v-main>
-
-    <ScrollToTop />
+    
+    <!-- Добавляем нижнюю навигацию для мобильных устройств -->
+    <MobileBottomNav v-if="isMobile" />
+    
+    <ScrollToTop v-if="!isMobile" />
+    
+    <!-- Добавьте компонент уведомлений -->
+    <Notification 
+      :visible="isNotificationVisible" 
+      :message="notificationMessage" 
+    />
   </v-app>
 </template>
 

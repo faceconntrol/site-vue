@@ -3,145 +3,197 @@
     <v-container>
       <h1 class="text-h4 mb-6">Корзина</h1>
       
-      <div v-if="cartStore.itemCount > 0">
-        <v-list>
-          <v-list-item
-            v-for="item in cartStore.items"
-            :key="item.product.id"
-            class="mb-4"
-          >
-            <template v-slot:prepend>
-              <v-img
-                :src="item.product.image || '/images/no-image.jpg'"
-                :alt="item.product.title"
-                width="100"
-                height="100"
-                cover
-                class="rounded"
-              />
-            </template>
-
-            <v-list-item-title class="text-h6 mb-2">
-              {{ item.product.title }}
-            </v-list-item-title>
-
-            <v-list-item-subtitle>
-              {{ formatPrice(item.product.price) }} ₽ × {{ item.quantity }} шт.
-            </v-list-item-subtitle>
-
-            <template v-slot:append>
-              <div class="d-flex align-center">
-                <div class="text-h6 mr-4">
-                  {{ formatPrice(item.product.price * item.quantity) }} ₽
-                </div>
-                <div class="d-flex align-center">
-                  <v-btn
-                    icon="mdi-minus"
-                    variant="tonal"
-                    size="small"
-                    @click="cartStore.updateQuantity(item.product.id, item.quantity - 1)"
-                  />
-                  <span class="mx-3">{{ item.quantity }}</span>
-                  <v-btn
-                    icon="mdi-plus"
-                    variant="tonal"
-                    size="small"
-                    @click="cartStore.updateQuantity(item.product.id, item.quantity + 1)"
-                  />
-                  <v-btn
-                    icon="mdi-delete"
-                    variant="text"
-                    color="error"
-                    class="ml-4"
-                    @click="cartStore.removeItem(item.product.id)"
-                  />
-                </div>
-              </div>
-            </template>
-          </v-list-item>
-        </v-list>
-
-        <v-divider class="my-6" />
-
-        <div class="d-flex justify-space-between align-center mb-4">
-          <v-switch
-            :model-value="cartStore.includeInstallation"
-            @update:model-value="cartStore.toggleInstallation()"
-            label="Включить установку"
-          />
-          <div class="text-right">
-            <div class="text-h6 mb-2">
-              Итого: {{ formatPrice(cartStore.total) }} ₽
+      <div v-if="isEmpty" class="empty-cart">
+        <v-icon size="80" class="mb-4">mdi-cart-off</v-icon>
+        <h2>Ваша корзина пуста</h2>
+        <p>Добавьте товары из каталога, чтобы продолжить покупки</p>
+        <v-btn 
+          color="primary" 
+          :to="isMobile ? '/mobile-catalog' : '/products'" 
+          class="mt-4"
+        >
+          Перейти в каталог
+        </v-btn>
+      </div>
+      
+      <div v-else class="cart-content">
+        <div class="cart-items">
+          <div v-for="item in cartItems" :key="item.id" class="cart-item">
+            <div class="item-image">
+              <img :src="item.image" :alt="item.title">
             </div>
-            <div v-if="cartStore.includeInstallation" class="text-caption">
-              Включая установку: {{ formatPrice(cartStore.installationCost) }} ₽
+            <div class="item-details">
+              <h3>{{ item.title }}</h3>
+              <div class="quantity-controls">
+                <v-btn small icon @click="decrementQuantity(item.id)">
+                  <v-icon>mdi-minus</v-icon>
+                </v-btn>
+                <span class="quantity">{{ item.quantity }}</span>
+                <v-btn small icon @click="incrementQuantity(item.id)">
+                  <v-icon>mdi-plus</v-icon>
+                </v-btn>
+              </div>
+            </div>
+            <div class="item-price">
+              <div class="price">{{ formatPrice(item.price * item.quantity) }}</div>
+              <v-btn icon small @click="removeItem(item.id)">
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
             </div>
           </div>
         </div>
-
-        <div class="d-flex justify-end">
-          <v-btn
-            color="error"
-            variant="text"
-            class="mr-4"
-            @click="cartStore.clearCart"
-          >
-            Очистить корзину
-          </v-btn>
-          <v-btn
-            color="primary"
-            size="large"
-            @click="checkout"
-          >
-            Оформить заказ
-          </v-btn>
+        
+        <div class="cart-summary">
+          <div class="d-flex justify-space-between align-center mb-4">
+            <div class="subtitle-1">Итого:</div>
+            <div class="title">{{ formatPrice(totalPrice) }}</div>
+          </div>
+          
+          <v-btn block color="primary" class="mb-2">Оформить заказ</v-btn>
+          <v-btn block variant="outlined" @click="clearCart">Очистить корзину</v-btn>
         </div>
-      </div>
-
-      <div v-else class="text-center py-12">
-        <v-icon
-          icon="mdi-cart-off"
-          size="64"
-          color="grey-lighten-1"
-          class="mb-4"
-        />
-        <h2 class="text-h5 mb-4">Корзина пуста</h2>
-        <v-btn
-          color="primary"
-          to="/products"
-        >
-          Перейти к каталогу
-        </v-btn>
       </div>
     </v-container>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useCartStore } from '@/stores/cart'
-import { useMemoize } from '@vueuse/core'
+import { ref, onMounted, computed } from 'vue';
+import { cartService } from '@/services/cartService';
 
-const cartStore = useCartStore()
+// Состояние корзины
+const cartItems = ref(cartService.loadCart());
+const isEmpty = computed(() => cartItems.value.length === 0);
+const totalPrice = computed(() => cartService.getTotalPrice());
 
-const formatPrice = useMemoize(
-  (price: number) => new Intl.NumberFormat('ru-RU').format(price)
-)
+// Определение мобильной версии
+const isMobile = ref(false);
 
-const checkout = () => {
-  // Здесь будет логика оформления заказа
-  console.log('Оформление заказа...')
+// Обновление корзины при монтировании
+onMounted(() => {
+  console.log('Страница корзины инициализирована');
+  cartItems.value = cartService.loadCart();
+  console.log('Текущие товары в корзине:', cartItems.value);
+  
+  // Проверяем, является ли устройство мобильным по классу на body
+  isMobile.value = document.body.classList.contains('mobile-device');
+  console.log('Мобильная версия:', isMobile.value);
+  
+  // Слушаем обновления корзины
+  window.addEventListener('cart-updated', () => {
+    cartItems.value = cartService.loadCart();
+  });
+});
+
+// Функция форматирования цены
+function formatPrice(price) {
+  return new Intl.NumberFormat('ru-RU', {
+    style: 'currency',
+    currency: 'RUB',
+    minimumFractionDigits: 0
+  }).format(price);
+}
+
+// Функции управления корзиной
+function removeItem(itemId) {
+  cartItems.value = cartService.removeItem(itemId);
+}
+
+function incrementQuantity(itemId) {
+  const item = cartItems.value.find(i => i.id === itemId);
+  if (item) {
+    cartItems.value = cartService.updateQuantity(itemId, item.quantity + 1);
+  }
+}
+
+function decrementQuantity(itemId) {
+  const item = cartItems.value.find(i => i.id === itemId);
+  if (item) {
+    if (item.quantity > 1) {
+      cartItems.value = cartService.updateQuantity(itemId, item.quantity - 1);
+    } else {
+      cartItems.value = cartService.removeItem(itemId);
+    }
+  }
+}
+
+function clearCart() {
+  cartItems.value = cartService.clearCart();
 }
 </script>
 
 <style scoped>
 .cart-page {
-  min-height: calc(100vh - 64px);
+  min-height: calc(100vh - 64px)
+}
+
+.empty-cart {
+  text-align: center;
+  padding: 120px 0;
+}
+
+.cart-content {
   padding: 24px 0;
 }
 
-.v-list-item {
+.cart-items {
+  margin-bottom: 24px;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  padding: 16px;
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 8px;
   margin-bottom: 16px;
+}
+
+.item-image {
+  width: 100px;
+  height: 100px;
+  margin-right: 16px;
+}
+
+.item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.item-details {
+  flex: 1;
+}
+
+.item-details h3 {
+  margin-bottom: 8px;
+}
+
+.quantity-controls {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.item-price {
+  text-align: right;
+}
+
+.price {
+  margin-right: 8px;
+}
+
+.cart-summary {
+  text-align: right;
+}
+
+.subtitle-1 {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 </style> 

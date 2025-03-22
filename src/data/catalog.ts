@@ -12,6 +12,7 @@ export interface Product {
   additional_info?: string
   maxResolution?: number
   channels?: number
+  resolution?: number
 }
 
 interface ProductsDatabase {
@@ -35,16 +36,18 @@ export const productsDB: ProductsDatabase = {
       'Поддержка карт памяти до 256 ГБ',
       'Защита IP67'
     ],
-    price: 14990,
+    price: 12490,
     image: '/images/products/DS-2CD2327G2-LU.jpg',
     category: 'camera',
-    brand: 'hikvision'
+    brand: 'hikvision',
+    section: 'video',
+    resolution: 2
   },
   'ds-2cd2023g2': {
     id: 'ds-2cd2023g2',
     title: 'DS-2CD2023G2-I EXIR',
     description: '2 Мп уличная цилиндрическая IP-камера с EXIR-подсветкой',
-    additional_info: 'Профессиональная IP-камера с технологией EXIR 2.0 обеспечивает равномерное ИК-освещение без засветов и темных углов. Поддержка технологии AcuSense позволяет точно классифицировать цели (человек/транспорт) и снижает количество ложных тревог.',
+    additional_info: 'Профессиональная IP-камера с технологией EXIR 2.0 для качественного видеонаблюдения в любых условиях. Благодаря встроенному алгоритму глубокого обучения камера точно классифицирует объекты (человек/транспорт) и снижает количество ложных тревог.',
     specs: [
       'Матрица 1/2.8" Progressive Scan CMOS',
       'Разрешение 2 Мп (1920×1080) @ 30 к/с',
@@ -56,10 +59,12 @@ export const productsDB: ProductsDatabase = {
       'Защита IP67, IK10',
       'Поддержка H.265+/H.265'
     ],
-    price: 13890,
+    price: 7990,
     image: '/images/products/ds-2cd2023g2.jpg',
     category: 'camera',
-    brand: 'hikvision'
+    brand: 'hikvision',
+    section: 'video',
+    resolution: 2
   },
   'dome-2mp': {
     id: 'dome-2mp',
@@ -80,7 +85,9 @@ export const productsDB: ProductsDatabase = {
     price: 12990,
     image: '/images/products/dome-2mp.jpg',
     category: 'camera',
-    brand: 'hikvision'
+    brand: 'hikvision',
+    section: 'video',
+    resolution: 2
   },
   'hw-ds-i200': {
     id: 'hw-ds-i200',
@@ -101,7 +108,9 @@ export const productsDB: ProductsDatabase = {
     price: 5990,
     image: '/images/products/hw-ds-i200.jpg',
     category: 'camera',
-    brand: 'hiwatch'
+    brand: 'hiwatch',
+    section: 'video',
+    resolution: 2
   },
   'hw-ds-i203': {
     id: 'hw-ds-i203',
@@ -122,7 +131,9 @@ export const productsDB: ProductsDatabase = {
     price: 5700,
     image: '/images/products/hw-ds-i203.jpg',
     category: 'camera',
-    brand: 'hiwatch'
+    brand: 'hiwatch',
+    section: 'video',
+    resolution: 2
   },
   'hw-ds-i400': {
     id: 'hw-ds-i400',
@@ -143,7 +154,9 @@ export const productsDB: ProductsDatabase = {
     price: 7990,
     image: '/images/products/hw-ds-i400.jpg',
     category: 'camera',
-    brand: 'hiwatch'
+    brand: 'hiwatch',
+    section: 'video',
+    resolution: 4
   },
   'hw-ds-i450': {
     id: 'hw-ds-i450',
@@ -163,7 +176,9 @@ export const productsDB: ProductsDatabase = {
     price: 9990,
     image: '/images/products/hw-ds-i450.jpg',
     category: 'camera',
-    brand: 'hiwatch'
+    brand: 'hiwatch',
+    section: 'video',
+    resolution: 4
   },
   'ptz': {
     id: 'ptz',
@@ -186,7 +201,9 @@ export const productsDB: ProductsDatabase = {
     price: 36990,
     image: '/images/products/ptz.jpg',
     category: 'camera',
-    brand: 'hikvision'
+    brand: 'hikvision',
+    section: 'video',
+    resolution: 4
   },
   'DS-2CD2347G2-LU': {
     id: 'DS-2CD2347G2-LU',
@@ -207,7 +224,9 @@ export const productsDB: ProductsDatabase = {
     price: 15700,
     image: 'images/products/DS-2CD2347G2-LU.jpg',
     category: 'camera',
-    brand: 'hikvision'
+    brand: 'hikvision',
+    section: 'video',
+    resolution: 4
   },
   'ds-2cd2t47g2': {
     id: 'ds-2cd2t47g2',
@@ -227,7 +246,9 @@ export const productsDB: ProductsDatabase = {
     price: 17300,
     image: '/images/products/ds-2cd2t47g2.jpg',
     category: 'camera',
-    brand: 'hikvision'
+    brand: 'hikvision',
+    section: 'video',
+    resolution: 4
   },
   'bullet-4mp': {
     id: 'bullet-4mp',
@@ -248,7 +269,9 @@ export const productsDB: ProductsDatabase = {
     price: 15990,
     image: '/images/products/bullet-4mp.jpg',
     category: 'camera',
-    brand: 'hikvision'
+    brand: 'hikvision',
+    section: 'video',
+    resolution: 4
   },
   'ds-2cd2783g2': {
     id: 'ds-2cd2783g2',
@@ -269,7 +292,9 @@ export const productsDB: ProductsDatabase = {
     price: 40490,
     image: '/images/products/ds-2cd2783g2.jpg',
     category: 'camera',
-    brand: 'hikvision'
+    brand: 'hikvision',
+    section: 'video',
+    resolution: 8
   },
   'ds-2cd2686g2': {
     id: 'ds-2cd2683g2',
@@ -290,7 +315,9 @@ export const productsDB: ProductsDatabase = {
     price: 29990,
     image: '/images/products/ds-2cd2686g2.jpg',
     category: 'camera',
-    brand: 'hikvision'
+    brand: 'hikvision',
+    section: 'video',
+    resolution: 8
   },
   'DS-2CD3386G2-ISU': {
     id: 'DS-2CD3386G2-ISU',
@@ -310,28 +337,30 @@ export const productsDB: ProductsDatabase = {
     price: 13990,
     image: '/images/products/DS-2CD2386G2-I.jpg',
     category: 'camera',
-    brand: 'hikvision'
+    brand: 'hikvision',
+    section: 'video',
+    resolution: 8
   },
   'ds-7604ni-k1': {
     id: 'ds-7604ni-k1',
     title: 'Hikvision DS-7604NI-K1',
-    description: '4-канальный сетевой видеорегистратор',
+    description: '4-канальный сетевой видеорегистратор с поддержкой камер до 8 Мп',
+    additional_info: 'Компактный видеорегистратор начального уровня в пластиковом корпусе. Поддерживает запись и отображение с камер разрешением до 8 Мп, оснащен одним портом SATA для жесткого диска до 10 ТБ.',
+    specs: [
+      'Запись и отображение 4 камер разрешением до 8 Мп',
+      'Пропускная способность 40 Мбит/с',
+      'Поддержка 1 SATA HDD до 10 ТБ',
+      'Выходы HDMI (4K) и VGA (1080p)',
+      'Поддержка H.265+/H.265/H.264+/H.264',
+      'Удаленный доступ через Hik-Connect P2P',
+      'Компактный пластиковый корпус'
+    ],
+    price: 7490,
+    image: '/images/products/ds-7604ni-k1.jpg',
     category: 'recorder',
     brand: 'hikvision',
-    channels: 4,  // Важно указать количество каналов
-    maxResolution: 8, // Максимальное разрешение в МП
-    additional_info: 'Видеорегистратор DS-7604NI-K1 представляет собой экономичное решение для небольших систем видеонаблюдения.',
-    specs: [
-      '4 IP канала с разрешением до 8 Мп',
-      'Входящий поток до 40 Мбит/с',
-      'Поддержка H.265+/H.264+',
-      '1 SATA интерфейс до 10ТБ',
-      'HDMI выход с разрешением до 4K',
-      'VGA выход до 1080p',
-      'Поддержка P2P подключения'
-    ],
-    price: 13990,
-    image: '/images/products/ds-7604ni-k1.jpg'
+    section: 'video',
+    channels: 4
   },
   'DS-7608NI-K2': {
     id: 'DS-7608NI-K2',
@@ -353,6 +382,7 @@ export const productsDB: ProductsDatabase = {
     image: '/images/products/DS-7608NI-K2.jpg',
     category: 'recorder',
     brand: 'hikvision',
+    section: 'video',
     maxResolution: 8
   },
   'ds-7608ni-k2-8p': {
@@ -371,6 +401,7 @@ export const productsDB: ProductsDatabase = {
     image: '/images/products/ds-7608ni-k2-8p.jpg',
     category: 'recorder',
     brand: 'hikvision',
+    section: 'video',
     maxResolution: 8
   },
   'ds-7616ni-k2-16p': {
@@ -389,6 +420,7 @@ export const productsDB: ProductsDatabase = {
     image: '/images/products/ds-7616ni-k2-16p.jpg',
     category: 'recorder',
     brand: 'hikvision',
+    section: 'video',
     maxResolution: 8
   },
   'ds-7732ni-k4': {
@@ -407,6 +439,7 @@ export const productsDB: ProductsDatabase = {
     image: '/images/products/ds-7732ni-k4.jpg',
     category: 'recorder',
     brand: 'hikvision',
+    section: 'video',
     maxResolution: 12
   },
   'hw-n204': {
@@ -428,6 +461,7 @@ export const productsDB: ProductsDatabase = {
     image: '/images/products/hw-n204.jpg',
     category: 'recorder',
     brand: 'hiwatch',
+    section: 'video',
     maxResolution: 4
   },
   'hw-n208': {
@@ -448,6 +482,7 @@ export const productsDB: ProductsDatabase = {
     image: '/images/products/hw-n208.jpg',
     category: 'recorder',
     brand: 'hiwatch',
+    section: 'video',
     maxResolution: 4
   },
   'hw-n216': {
@@ -469,6 +504,7 @@ export const productsDB: ProductsDatabase = {
     image: '/images/products/hw-n216.jpg',
     category: 'recorder',
     brand: 'hiwatch',
+    section: 'video',
     maxResolution: 4
   },
   'kit-hikvision-2mp': {
@@ -643,21 +679,22 @@ export const productsDB: ProductsDatabase = {
   'DS-3E0310P-E/M': {
     id: 'DS-3E0310P-E/M',
     title: 'DS-3E0310P-E/M',
-    description: '8-портовый PoE коммутатор с 2 uplink портами',
-    additional_info: 'Профессиональный PoE коммутатор для систем видеонаблюдения с поддержкой дальнего подключения.',
+    description: 'Управляемый POE коммутатор на 10 портов (8 POE 802.3af/at)',
+    additional_info: 'Управляемый коммутатор с 8 портами PoE для подключения IP-камер и других PoE-устройств. Общий бюджет мощности PoE составляет 110 Вт, что позволяет подключать до 8 устройств с питанием по сети.',
     specs: [
-      '8 портов 10/100 Мбит/с с PoE',
-      '2 порта 10/100/1000 Мбит/с Uplink',
-      'Бюджет PoE 135Вт',
-      'Стандарты PoE IEEE 802.3af/at',
-      'Extend режим до 250м',
-      'Защита от перенапряжения 6кВ',
-      'Металлический корпус'
+      '8 портов RJ45 10/100 Мбит/с с PoE (802.3af/at)',
+      '2 порта RJ45 10/100/1000 Мбит/с (Uplink)',
+      'Бюджет мощности PoE: 110 Вт',
+      'Управление через Web-интерфейс',
+      'Поддержка VLAN, QoS, SNMP',
+      'Защита от грозовых разрядов до 6 кВ',
+      'Монтаж в стойку 19"'
     ],
-    price: 9490,
+    price: 16990,
     image: '/images/products/DS-3E0310P-E-M.jpg',
     category: 'network',
-    brand: 'hikvision'
+    brand: 'hikvision',
+    section: 'video'
   },
   'DS-3E0106P-E/M': {
     id: 'DS-3E0106P-E/M',
@@ -676,6 +713,7 @@ export const productsDB: ProductsDatabase = {
     price: 5990,
     image: '/images/products/DS-3E0106P-E-M.jpg',
     category: 'network',
+    section: 'video',
     brand: 'hikvision'
   },
   'DS-3E1310HP-EI': {
@@ -734,7 +772,9 @@ export const productsDB: ProductsDatabase = {
     price: 15990,
     image: '/images/products/DS-I205M.jpg',
     category: 'camera',
-    brand: 'hiwatch'
+    brand: 'hiwatch',
+    section: 'video',
+    resolution: 2
   },
   'DS-I215': {
     id: 'DS-I215',
@@ -755,7 +795,9 @@ export const productsDB: ProductsDatabase = {
     price: 31990,
     image: '/images/products/DS-I215.jpg',
     category: 'camera',
-    brand: 'hiwatch'
+    brand: 'hiwatch',
+    section: 'video',
+    resolution: 2
   },
   'DS-I256Z': {
     id: 'DS-I256Z',
@@ -776,7 +818,9 @@ export const productsDB: ProductsDatabase = {
     price: 12990,
     image: '/images/products/DS-I256Z.jpg',
     category: 'camera',
-    brand: 'hiwatch'
+    brand: 'hiwatch',
+    section: 'video',
+    resolution: 2
   },
   'DS-I650M': {
     id: 'DS-I650M',
@@ -798,7 +842,8 @@ export const productsDB: ProductsDatabase = {
     price: 14990,
     image: '/images/products/DS-I650M.jpg',
     category: 'camera',
-    brand: 'hiwatch'
+    brand: 'hiwatch',
+    section: 'video'
   },
   'DS-I652M': {
     id: 'DS-I652M',
@@ -819,7 +864,8 @@ export const productsDB: ProductsDatabase = {
     price: 14990,
     image: '/images/products/DS-I652M.jpg',
     category: 'camera',
-    brand: 'hiwatch'
+    brand: 'hiwatch',
+    section: 'video'
   },
   'DS-I653M': {
     id: 'DS-I653M',
@@ -840,7 +886,8 @@ export const productsDB: ProductsDatabase = {
     price: 13990,
     image: '/images/products/DS-I653M.jpg',
     category: 'camera',
-    brand: 'hiwatch'
+    brand: 'hiwatch',
+    section: 'video'
   },
   'DS-N304(B)': {
     id: 'DS-N304(B)',
@@ -862,6 +909,7 @@ export const productsDB: ProductsDatabase = {
     image: '/images/products/DS-N304B.jpg',
     category: 'recorder',
     brand: 'hiwatch',
+    section: 'video',
     maxResolution: 8
   },
   'DS-N308(B)': {
@@ -884,6 +932,7 @@ export const productsDB: ProductsDatabase = {
     image: '/images/products/DS-N308B.jpg',
     category: 'recorder',
     brand: 'hiwatch',
+    section: 'video',
     maxResolution: 8
   },
   'DS-N316/2(B)': {
@@ -905,6 +954,7 @@ export const productsDB: ProductsDatabase = {
     image: '/images/products/DS-N316-2B.jpg',
     category: 'recorder',
     brand: 'hiwatch',
+    section: 'video',
     maxResolution: 8
   },
   'DS-N332/2(B)': {
@@ -926,6 +976,7 @@ export const productsDB: ProductsDatabase = {
     image: '/images/products/DS-N332-2B.jpg',
     category: 'recorder',
     brand: 'hiwatch',
+    section: 'video',
     maxResolution: 8
   },
   'DS-7104NI-Q1/M': {
@@ -947,6 +998,7 @@ export const productsDB: ProductsDatabase = {
     image: '/images/products/DS-7104NI-Q1-M.jpg',
     category: 'recorder',
     brand: 'hikvision',
+    section: 'video',
     maxResolution: 4
   },
   'DS-2CD2123G0E-I': {
@@ -968,7 +1020,8 @@ export const productsDB: ProductsDatabase = {
     price: 9990,
     image: '/images/products/DS-2CD2123G0E-I.jpg',
     category: 'camera',
-    brand: 'hikvision'
+    brand: 'hikvision',
+    section: 'video'
   },
   'DS-2DE1A400IW-DE3': {
     id: 'DS-2DE1A400IW-DE3',
@@ -987,7 +1040,8 @@ export const productsDB: ProductsDatabase = {
     price: 14490,
     image: '/images/products/DS-2DE1A400IW-DE3.jpg',
     category: 'camera',
-    brand: 'hikvision'
+    brand: 'hikvision',
+    section: 'video'
   },
   'DS-2CD6365G0E-IS': {
     id: 'DS-2CD6365G0E-IS',
@@ -1008,7 +1062,8 @@ export const productsDB: ProductsDatabase = {
     price: 59990,
     image: '/images/products/DS-2CD6365G0E-IS.jpg',
     category: 'camera',
-    brand: 'hikvision'
+    brand: 'hikvision',
+    section: 'video'
   },
   'DS-2CD3065FWD-I': {
     id: 'DS-2CD3065FWD-I',
@@ -1028,7 +1083,8 @@ export const productsDB: ProductsDatabase = {
     price: 17990,
     image: '/images/products/DS-2CD3065FWD-I.jpg',
     category: 'camera',
-    brand: 'hikvision'
+    brand: 'hikvision',
+    section: 'video'
   },
   'DS-2CD2T63G0-I8': {
     id: 'DS-2CD2T63G0-I8',
@@ -1049,7 +1105,8 @@ export const productsDB: ProductsDatabase = {
     price: 16990,
     image: '/images/products/DS-2CD2T63G0-I8.jpg',
     category: 'camera',
-    brand: 'hikvision'
+    brand: 'hikvision',
+    section: 'video'
   },
   'DS-2CD2T22WD-I8': {
     id: 'DS-2CD2T22WD-I8',
@@ -1070,7 +1127,8 @@ export const productsDB: ProductsDatabase = {
     price: 13490,
     image: '/images/products/DS-2CD2T22WD-I8.jpg',
     category: 'camera',
-    brand: 'hikvision'
+    brand: 'hikvision',
+    section: 'video'
   },
   'IPC-B582-G2': {
     id: 'IPC-B582-G2',
@@ -1091,7 +1149,9 @@ export const productsDB: ProductsDatabase = {
     price: 17290,
     image: '/images/products/IPC-B582-G2.jpg',
     category: 'camera',
-    brand: 'hiwatch'
+    brand: 'hiwatch',
+    section: 'video',
+    resolution: 8
   },
   'IPC-D082-G2': {
     id: 'IPC-D082-G2',
@@ -1112,7 +1172,9 @@ export const productsDB: ProductsDatabase = {
     price: 16420,
     image: '/images/products/IPC-D082-G2.jpg',
     category: 'camera',
-    brand: 'hiwatch'
+    brand: 'hiwatch',
+    section: 'video',
+    resolution: 8
   },
   'DS-PD2-T10P-WE': {
     id: 'DS-PD2-T10P-WE',
@@ -1671,5 +1733,128 @@ export const productsDB: ProductsDatabase = {
     category: 'kits',
     section: 'smart-home',
     brand: 'hikvision'
+  },
+  'ds-2cd2143g2': {
+    id: 'ds-2cd2143g2',
+    title: 'DS-2CD2143G2-I EXIR',
+    description: '4 Мп уличная цилиндрическая IP-камера с EXIR-подсветкой',
+    additional_info: 'Профессиональная IP-камера с технологией EXIR 2.0 для качественного видеонаблюдения в любых условиях. Благодаря встроенному алгоритму глубокого обучения камера точно классифицирует объекты (человек/транспорт) и снижает количество ложных тревог.',
+    specs: [
+      'Матрица 1/2.8" Progressive Scan CMOS',
+      'Разрешение 4 Мп (2688×1520) @ 30 к/с',
+      'Чувствительность: 0.01 лк @ (F1.2, AGC вкл), 0 лк с ИК',
+      'Фиксированный объектив 2.8/4/6 мм',
+      'EXIR-подсветка до 80м',
+      'Аппаратный WDR 120дБ, 3D DNR',
+      'Встроенный обогреватель',
+      'Защита IP67, IK10',
+      'Рабочая температура -40°C до +60°C'
+    ],
+    price: 15990,
+    image: '/images/products/ds-2cd2143g2.jpg',
+    category: 'camera',
+    brand: 'hikvision',
+    section: 'video',
+    resolution: 4
   }
 } 
+
+// Добавить функцию для определения разрешения из описания и спецификаций
+function determineResolution(product: Product): number {
+  // Если resolution уже задан, возвращаем его
+  if (product.resolution) {
+    return product.resolution;
+  }
+  
+  // Массив для проверки - описание и спецификации
+  const textsToCheck = [
+    product.description,
+    product.additional_info,
+    ...(product.specs || [])
+  ].filter(Boolean);
+  
+  // Объединяем все тексты для поиска
+  const allText = textsToCheck.join(' ');
+  
+  // Ищем упоминания разрешения
+  if (allText.match(/\b8\s*[мМ][пП]\b/) || allText.match(/\b4[kK]\b/) || allText.match(/3840\s*[×x]\s*2160/)) {
+    return 8;
+  } else if (allText.match(/\b6\s*[мМ][пП]\b/) || allText.match(/3072\s*[×x]\s*2048/)) {
+    return 6;
+  } else if (allText.match(/\b5\s*[мМ][пП]\b/) || allText.match(/2560\s*[×x]\s*1920/)) {
+    return 5;
+  } else if (allText.match(/\b4\s*[мМ][пП]\b/) || allText.match(/2688\s*[×x]\s*1520/) || allText.match(/2560\s*[×x]\s*1440/)) {
+    return 4;
+  } else if (allText.match(/\b2\s*[мМ][пП]\b/) || allText.match(/1920\s*[×x]\s*1080/) || allText.match(/\bHD\b/i)) {
+    return 2;
+  }
+  
+  // Если не удалось определить, по умолчанию ставим 2MP как наиболее распространенное
+  return 2;
+}
+
+// Применяем функцию ко всем камерам и устанавливаем параметр resolution
+Object.values(productsDB).forEach(product => {
+  if (product.category === 'camera' && !product.resolution) {
+    product.resolution = determineResolution(product);
+    console.log(`[INFO] Установлено разрешение ${product.resolution} для камеры ${product.title}`);
+  }
+});
+
+// Функция для глубокой проверки данных каталога
+export function checkCatalogData() {
+  // Проверяем общую структуру каталога
+  console.log('[DEBUG] Каталог: общее количество товаров:', Object.keys(productsDB).length);
+  
+  // Подсчитываем количество товаров по секциям
+  const sections: Record<string, number> = {};
+  const categories: Record<string, number> = {};
+  const sectionsAndCategories: Record<string, number> = {};
+  
+  Object.values(productsDB).forEach(product => {
+    // Проверка секций
+    const section = product.section || 'undefined';
+    sections[section] = (sections[section] || 0) + 1;
+    
+    // Проверка категорий
+    const category = product.category || 'undefined';
+    categories[category] = (categories[category] || 0) + 1;
+    
+    // Проверка соотношения секций и категорий
+    const key = `${section}:${category}`;
+    sectionsAndCategories[key] = (sectionsAndCategories[key] || 0) + 1;
+  });
+  
+  console.log('[DEBUG] Каталог: распределение товаров по секциям:', sections);
+  console.log('[DEBUG] Каталог: распределение товаров по категориям:', categories);
+  console.log('[DEBUG] Каталог: распределение по секциям и категориям:', sectionsAndCategories);
+  
+  // Проверяем товары из секции smart-home
+  const smartHomeProducts = Object.entries(productsDB)
+    .filter(([_, product]) => product.section === 'smart-home')
+    .slice(0, 5);
+    
+  console.log('[DEBUG] Каталог: примеры товаров из секции smart-home:');
+  smartHomeProducts.forEach(([id, product]) => {
+    console.log(`- ${id}: ${product.title}, секция: ${product.section}, категория: ${product.category}`);
+  });
+}
+
+// Вызываем функцию при импорте модуля
+checkCatalogData();
+
+// Должна быть экспортирована функция getCatalogProducts
+export function getCatalogProducts() {
+  return Object.values(productsDB); // Возвращает массив продуктов
+}
+
+// Экспортируем переменную для доступа по ключам, если это необходимо
+export const catalogData = productsDB;
+
+// Проверяем, что resolution задан для всех камер
+console.log('[DEBUG] Проверка наличия параметра resolution для камер:');
+Object.values(productsDB).forEach(product => {
+  if (product.category === 'camera' && !product.resolution) {
+    console.warn(`[WARN] У камеры ${product.title} не задан параметр resolution`);
+  }
+});

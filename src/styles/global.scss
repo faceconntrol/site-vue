@@ -1,6 +1,8 @@
 @use "@styles/_variables" as *;
 @use "@styles/_base";
 @use "@styles/_utilities";
+// Явно импортируем мобильные стили
+@import "@styles/_mobile.scss";
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 // Глобальные стили

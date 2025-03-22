@@ -193,7 +193,7 @@ import { useMemoize } from '@vueuse/core'
 import { useHead } from '@vueuse/head'
 import type { ProductCardProps } from '@/types/component-props'
 import LazyImage from '@/components/LazyImage.vue'
-import { useCartStore } from '@/stores/cart'
+import { cartService } from '@/services/cartService'
 
 // Типизированные пропсы
 const props = defineProps<ProductCardProps>()
@@ -246,7 +246,7 @@ const tooltips = computed(() => ({
 // Вычисляемые свойства для определения типов камер
 const isColorVuCamera = computed(() => {
   return props.product.features?.includes('colorvu') || 
-         props.product.specs?.some(spec => 
+         props.product.specs?.some((spec: string) => 
            spec.toLowerCase().includes('colorvu') ||
            spec.toLowerCase().includes('color vu')
          )
@@ -254,7 +254,7 @@ const isColorVuCamera = computed(() => {
 
 const isAcuSenseCamera = computed(() => {
   return props.product.features?.includes('acusense') || 
-         props.product.specs?.some(spec => 
+         props.product.specs?.some((spec: string) => 
            spec.toLowerCase().includes('acusense') ||
            spec.toLowerCase().includes('acu sense') ||
            spec.toLowerCase().includes('ai детекция')
@@ -263,7 +263,7 @@ const isAcuSenseCamera = computed(() => {
 
 const isPanoramicCamera = computed(() => {
   return props.product.features?.includes('panoramic') || 
-         props.product.specs?.some(spec => 
+         props.product.specs?.some((spec: string) => 
            spec.toLowerCase().includes('панорамная') || 
            spec.toLowerCase().includes('panoramic') ||
            spec.toLowerCase().includes('панорам') ||
@@ -274,7 +274,7 @@ const isPanoramicCamera = computed(() => {
 
 const isPTZCamera = computed(() => {
   return props.product.features?.includes('ptz') || 
-         props.product.specs?.some(spec => 
+         props.product.specs?.some((spec: string) => 
            spec.toLowerCase().includes('поворотная') || 
            spec.toLowerCase().includes('ptz') ||
            spec.toLowerCase().includes('p.t.z') ||
@@ -303,25 +303,52 @@ function closeDialog() {
   dialog.value = false
 }
 
-const cartStore = useCartStore()
+const isAddingToCart = ref(false)
+const quantity = ref(0)
 
-// Отслеживаем количество товара в корзине
-const quantity = computed(() => {
-  const item = cartStore.items.find(item => item.product.id === props.product.id)
-  return item ? item.quantity : 0
-})
+function getProductImage(product: any) {
+  return product.image || `/images/products/${product.id}.webp`
+}
 
-const addToCart = () => {
-  cartStore.addItem(props.product)
+function updateQuantity() {
+  try {
+    const items = cartService.getItems()
+    const item = items.find(i => i.id === props.product.id)
+    quantity.value = item ? item.quantity : 0
+  } catch (error) {
+    console.error('Ошибка при обновлении количества:', error)
+    quantity.value = 0
+  }
+}
+
+function addToCart() {
+  isAddingToCart.value = true
+  
+  setTimeout(() => {
+    cartService.addItem({
+      id: props.product.id,
+      title: props.product.title,
+      price: props.product.price,
+      image: getProductImage(props.product)
+    })
+    
+    isAddingToCart.value = false
+    updateQuantity()
+  }, 300)
+}
+
+const increaseQuantity = () => {
+  cartService.updateQuantity(props.product.id, quantity.value + 1)
+  updateQuantity()
 }
 
 const decreaseQuantity = () => {
-  const currentQuantity = quantity.value
-  if (currentQuantity > 1) {
-    cartStore.updateQuantity(props.product.id, currentQuantity - 1)
+  if (quantity.value > 1) {
+    cartService.updateQuantity(props.product.id, quantity.value - 1)
   } else {
-    cartStore.removeItem(props.product.id)
+    cartService.removeItem(props.product.id)
   }
+  updateQuantity()
 }
 
 // Обработчик ошибки загрузки изображения
@@ -331,7 +358,43 @@ const handleImageError = (e: Event) => {
   }
 }
 
-// Добавим функцию для отладки
+// Функция определения отображения продукта на основе фильтров и поиска
+const shouldDisplayProduct = (product: any, searchInput?: string) => {
+  let shouldDisplay = true;
+
+  // Проверяем только если у продукта есть описание, спецификации или название
+  if (searchInput && product) {
+    const searchTerm = searchInput.toLowerCase();
+    // Ищем совпадения в различных полях продукта
+    const matchesSearch = 
+      (product.title && product.title.toLowerCase().includes(searchTerm)) ||
+      (product.description && product.description.toLowerCase().includes(searchTerm)) ||
+      (product.specs && product.specs.some((spec: string) => spec.toLowerCase().includes(searchTerm)));
+    
+    shouldDisplay = matchesSearch;
+  }
+  
+  return shouldDisplay;
+};
+
+// Экспортируем функцию для использования в других компонентах
+defineExpose({ shouldDisplayProduct });
+
+// Определение интерфейса продукта для улучшения типизации
+interface Product {
+  id: string;
+  title: string;
+  description?: string;
+  specs?: string[];
+  features?: string[];
+  additional_info?: string;
+  image?: string;
+  category?: string;
+  brand?: string;
+  price?: number;
+}
+
+// Теперь используем этот интерфейс
 const debugFeatures = (product: Product) => {
   console.group('Product Features Debug:', product.title)
   console.log('Specs:', product.specs)
@@ -345,6 +408,8 @@ const debugFeatures = (product: Product) => {
 // Вызовем её при монтировании
 onMounted(() => {
   debugFeatures(props.product)
+  updateQuantity()
+  window.addEventListener('cart-updated', updateQuantity)
 })
 </script>
 

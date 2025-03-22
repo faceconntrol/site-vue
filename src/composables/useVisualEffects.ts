@@ -45,4 +45,40 @@ export function useParallax(factor = 0.2) {
   })
   
   return { elementRef, offset }
+}
+
+export function useVisualEffects() {
+  const isNotificationVisible = ref(false);
+  const notificationMessage = ref('');
+  const notificationTimeout = ref<number | null>(null);
+
+  /**
+   * Показывает уведомление с указанным сообщением
+   * @param message Текст уведомления
+   * @param duration Продолжительность показа в миллисекундах (по умолчанию 3000мс)
+   */
+  function showNotification(message: string, duration: number = 3000) {
+    // Очищаем предыдущий таймер, если он есть
+    if (notificationTimeout.value) {
+      clearTimeout(notificationTimeout.value);
+    }
+
+    // Устанавливаем сообщение и показываем уведомление
+    notificationMessage.value = message;
+    isNotificationVisible.value = true;
+
+    // Устанавливаем таймер скрытия
+    notificationTimeout.value = window.setTimeout(() => {
+      isNotificationVisible.value = false;
+      notificationTimeout.value = null;
+    }, duration);
+    
+    console.log('Показано уведомление:', message);
+  }
+
+  return {
+    isNotificationVisible,
+    notificationMessage,
+    showNotification
+  };
 } 
